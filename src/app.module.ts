@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { FoodItemsModule } from './food-items/food-items.module';
+import { InventoryModule } from './inventory/inventory.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 /**
  * Root application module
@@ -14,6 +16,10 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
   imports: [
     ConfigModule, // Configuration module (global)
     DatabaseModule, // Database module (global)
+    UsersModule, // Users module (global)
+    AuthModule, // Auth module
+    FoodItemsModule, // Food items reference data module
+    InventoryModule, // Inventory items module
   ],
   controllers: [AppController],
   providers: [
