@@ -1,0 +1,1305 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  family
+  restaurant
+  shop
+  ngo
+  admin
+}
+
+enum ShoppingListPriority {
+  low
+  medium
+  high
+}
+
+enum MealType {
+  breakfast
+  lunch
+  dinner
+  snack
+}
+
+enum UploadAssociatedType {
+  inventory
+  log
+  profile
+}
+
+enum StorageType {
+  fresh
+  chilled
+  frozen
+  dry
+  ambient
+}
+
+enum RestaurantStorageType {
+  fresh
+  chilled
+  frozen
+  dry
+}
+
+enum ShopStorageType {
+  frozen
+  chilled
+  ambient
+}
+
+enum Status {
+  available
+  pending
+  claimed
+  expired
+  completed
+  delivered
+  cancelled
+  declined
+  approved
+  scheduled
+  enRoute
+  pickedUp
+  partial
+  redirected
+  acknowledged
+  resolved
+  picked
+  inProgress
+  upcoming
+  active
+  none
+}
+
+enum CookingFrequency {
+  daily
+  fewTimesWeek
+  weekly
+  occasional
+}
+
+enum DietaryType {
+  vegan
+  vegetarian
+  halal
+  keto
+  lowSodium
+  general
+}
+
+enum PriceSensitivity {
+  low
+  medium
+  high
+}
+
+enum MealPrepPreference {
+  quick
+  diverse
+  budget
+  highProtein
+}
+
+enum WasteSensitivityLevel {
+  low
+  medium
+  high
+}
+
+enum SustainabilityPreference {
+  minimal
+  moderate
+  high
+}
+
+enum LeftoverComfortLevel {
+  low
+  medium
+  high
+}
+
+enum CommunityRole {
+  member
+  champion
+  organizer
+}
+
+enum Visibility {
+  public
+  community
+  private
+}
+
+enum NotificationType {
+  claim
+  volunteer
+  announcement
+  surplus
+  reminder
+  urgentOffer
+  pickup
+  feedback
+  message
+}
+
+enum Severity {
+  info
+  warning
+  critical
+}
+
+enum DonorType {
+  building
+  restaurant
+  household
+  kitchen
+  communityKitchen
+  ngo
+}
+
+enum UrgencyLevel {
+  low
+  medium
+  high
+}
+
+enum VehicleType {
+  van
+  bike
+  car
+  onFoot
+}
+
+enum PriceMapMethod {
+  percentage
+  fixed
+}
+
+enum DonationRecipientType {
+  ngo
+  communityKitchen
+}
+
+enum CommunityLeaderboardType {
+  topSharers
+  zeroWaste
+  volunteerStars
+  buildingImpact
+  weeklyXp
+}
+
+enum RestaurantItemStatus {
+  normal
+  expiring
+  overstocked
+}
+
+enum WasteScore {
+  low
+  medium
+  high
+}
+
+enum Condition {
+  fresh
+  nearExpiry
+}
+
+enum TaskCategory {
+  expiry
+  pricing
+  surplus
+  cleaning
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+}
+
+// ============================================================================
+// CORE TABLES
+// ============================================================================
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(255)
+  name         String   @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.Text
+  householdId  String?  @map("household_id") @db.Uuid
+  role         UserRole @default(family)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  inventoryItems            InventoryItem[]
+  consumptionLogs           ConsumptionLog[]
+  shoppingListItems         ShoppingListItem[]
+  mealPlans                 MealPlan[]
+  uploads                   Upload[]
+  badges                    Badge[]
+  userXp                    UserXp?
+  nutritionData             NutritionData[]
+  communitySurplusPosts     CommunitySurplusPost[]
+  surplusRequests           SurplusRequest[]
+  surplusComments           SurplusComment[]
+  leftoverItems             LeftoverItem[]
+  leftoverItemClaims        LeftoverItemClaim[]
+  communityNotifications    CommunityNotification[]
+  communityProfile          CommunityProfile?
+  restaurantInventoryItems  RestaurantInventoryItem[]
+  restaurantMenuItems       RestaurantMenuItem[]
+  restaurantSurplusItems    RestaurantSurplusItem[]
+  restaurantDonationLogs    RestaurantDonationLog[]
+  restaurantImpactMetrics   RestaurantImpactMetric?
+  restaurantStaffTasks      RestaurantStaffTask[]
+  restaurantShiftSchedule   RestaurantShiftSchedule[]
+  restaurantPreferences     RestaurantPreferences?
+  ngoCapacitySettings       NgoCapacitySetting?
+  ngoDonationOffers         NgoDonationOffer[] @relation("NgoDonationOffers")
+  ngoDonationOffersDonor    NgoDonationOffer[] @relation("NgoDonationOffersDonor")
+  ngoPickupSchedules        NgoPickupSchedule[]
+  ngoDonationHistory        NgoDonationHistory[]
+  ngoPartnerProfiles        NgoPartnerProfile[]
+  ngoFeedbackEntries        NgoFeedbackEntry[]
+  ngoImpactStories          NgoImpactStory[]
+  ngoNotifications          NgoNotification[]
+  shopInventoryItems        ShopInventoryItem[]
+  shopPriceMapEntries       ShopPriceMapEntry[]
+  shopDiscountSuggestions   ShopDiscountSuggestion[]
+  shopSurplusItems          ShopSurplusItem[]
+  shopAnalyticsRecords      ShopAnalyticsRecord?
+  shopStaffMembers          ShopStaffMember[]
+  shopStaffTasks            ShopStaffTask[]
+  shopShifts                ShopShift[]
+  shopProfile               ShopProfile?
+
+  @@index([email])
+  @@index([householdId])
+  @@index([role])
+  @@map("users")
+}
+
+model FoodItem {
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String   @db.VarChar(255)
+  category        String   @db.VarChar(100)
+  typicalExpiryDays Int    @map("typical_expiry_days")
+  storageTips     String?  @map("storage_tips") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  inventoryItems  InventoryItem[]
+
+  @@map("food_items")
+}
+
+model InventoryItem {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  name        String    @db.VarChar(255)
+  quantity    Decimal   @db.Decimal(10, 2)
+  unit        String?   @db.VarChar(50)
+  expiryDate  DateTime? @map("expiry_date") @db.Timestamptz(6)
+  category    String?   @db.VarChar(100)
+  location    String?   @db.VarChar(100)
+  foodItemId  String?   @map("food_item_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodItem  FoodItem? @relation(fields: [foodItemId], references: [id], onDelete: SetNull)
+  consumptionLogs ConsumptionLog[]
+
+  @@index([userId])
+  @@index([expiryDate])
+  @@index([category])
+  @@index([foodItemId])
+  @@map("inventory_items")
+}
+
+model ConsumptionLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  inventoryItemId String?  @map("inventory_item_id") @db.Uuid
+  foodName        String   @map("food_name") @db.VarChar(255)
+  quantity        Decimal  @db.Decimal(10, 2)
+  unit            String?  @db.VarChar(50)
+  category        String?  @db.VarChar(100)
+  consumedAt      DateTime @map("consumed_at") @db.Timestamptz(6)
+  wasWasted       Boolean  @default(false) @map("was_wasted")
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem?  @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([consumedAt])
+  @@index([inventoryItemId])
+  @@map("consumption_logs")
+}
+
+model ShoppingListItem {
+  id            String            @id @default(uuid()) @db.Uuid
+  userId        String            @map("user_id") @db.Uuid
+  householdId   String?           @map("household_id") @db.Uuid
+  name          String            @db.VarChar(255)
+  quantity      Decimal           @db.Decimal(10, 2)
+  unit          String?           @db.VarChar(50)
+  category      String?           @db.VarChar(100)
+  priority      ShoppingListPriority @default(medium)
+  purchased     Boolean           @default(false)
+  purchasedAt   DateTime?         @map("purchased_at") @db.Timestamptz(6)
+  estimatedPrice Decimal?         @map("estimated_price") @db.Decimal(10, 2)
+  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([householdId])
+  @@index([purchased])
+  @@map("shopping_list_items")
+}
+
+model MealPlan {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  householdId String?  @map("household_id") @db.Uuid
+  date        DateTime @db.Date
+  mealType    MealType @map("meal_type")
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  ingredients String[] @db.Text
+  servings    Int?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([householdId])
+  @@map("meal_plans")
+}
+
+model Resource {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  category    String   @db.VarChar(100)
+  url         String?  @db.Text
+  tags        String[] @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("resources")
+}
+
+model Upload {
+  id             String              @id @default(uuid()) @db.Uuid
+  userId         String              @map("user_id") @db.Uuid
+  fileName       String              @map("file_name") @db.VarChar(255)
+  fileType       String              @map("file_type") @db.VarChar(100)
+  fileSize       BigInt              @map("file_size")
+  data           String?             @db.Text
+  associatedType UploadAssociatedType? @map("associated_type")
+  associatedId   String?             @map("associated_id") @db.Uuid
+  createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime            @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("uploads")
+}
+
+// ============================================================================
+// GAMIFICATION & USER PROGRESS
+// ============================================================================
+
+model Badge {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  badgeId     String   @map("badge_id") @db.VarChar(100)
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  icon        String?  @db.VarChar(255)
+  unlockedAt  DateTime @map("unlocked_at") @db.Timestamptz(6)
+  xpReward    Int      @default(0) @map("xp_reward")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+  @@map("badges")
+}
+
+model UserXp {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @unique @map("user_id") @db.Uuid
+  totalXp        Int      @default(0) @map("total_xp")
+  level          Int      @default(1)
+  currentLevelXp Int      @default(0) @map("current_level_xp")
+  nextLevelXp    Int      @default(100) @map("next_level_xp")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_xp")
+}
+
+// ============================================================================
+// FAMILY & PREFERENCES
+// ============================================================================
+
+model FamilyPreferences {
+  id                      String                  @id @default(uuid()) @db.Uuid
+  householdId             String                  @unique @map("household_id") @db.Uuid
+  householdSize           Int                     @map("household_size")
+  ageGroups               Json?                   @map("age_groups")
+  cookingFrequency        CookingFrequency?       @map("cooking_frequency")
+  eatingSchedule          Json?                   @map("eating_schedule")
+  dietaryType             DietaryType?            @map("dietary_type")
+  dietaryRestrictions     String[]                @map("dietary_restrictions") @db.Text
+  allergies               String[]                @db.Text
+  healthConditions        String[]                @map("health_conditions") @db.Text
+  weeklyBudget            Decimal?                @map("weekly_budget") @db.Decimal(10, 2)
+  budgetRange             Json?                   @map("budget_range")
+  preferredStores         String[]                @map("preferred_stores") @db.Text
+  priceSensitivity        PriceSensitivity?       @map("price_sensitivity")
+  preferredCuisines       String[]                @map("preferred_cuisines") @db.Text
+  mealPrepPreference      MealPrepPreference?     @map("meal_prep_preference")
+  wasteSensitivityLevel   WasteSensitivityLevel?  @map("waste_sensitivity_level")
+  sustainabilityPreference SustainabilityPreference? @map("sustainability_preference")
+  leftoverComfortLevel    LeftoverComfortLevel?   @map("leftover_comfort_level")
+  dailyCalories           Int?                    @map("daily_calories")
+  macroGoal               Json?                   @map("macro_goal")
+  vitaminsFocus           String[]                @map("vitamins_focus") @db.Text
+  avoidExcess             String[]                @map("avoid_excess") @db.Text
+  createdAt               DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime                @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("family_preferences")
+}
+
+model NutritionData {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  date          DateTime @db.Date
+  calories      Decimal  @default(0) @db.Decimal(10, 2)
+  protein       Decimal  @default(0) @db.Decimal(10, 2)
+  carbs         Decimal  @default(0) @db.Decimal(10, 2)
+  fats          Decimal  @default(0) @db.Decimal(10, 2)
+  fiber         Decimal  @default(0) @db.Decimal(10, 2)
+  sugar         Decimal  @default(0) @db.Decimal(10, 2)
+  sodium        Decimal  @default(0) @db.Decimal(10, 2)
+  vitaminA      Decimal  @default(0) @map("vitamin_a") @db.Decimal(10, 2)
+  vitaminB      Decimal  @default(0) @map("vitamin_b") @db.Decimal(10, 2)
+  vitaminC      Decimal  @default(0) @map("vitamin_c") @db.Decimal(10, 2)
+  vitaminD      Decimal  @default(0) @map("vitamin_d") @db.Decimal(10, 2)
+  iron          Decimal  @default(0) @db.Decimal(10, 2)
+  calcium       Decimal  @default(0) @db.Decimal(10, 2)
+  nutritionScore Int?    @map("nutrition_score")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("nutrition_data")
+}
+
+model PriceComparison {
+  id        String   @id @default(uuid()) @db.Uuid
+  itemName  String   @map("item_name") @db.VarChar(255)
+  category  String?  @db.VarChar(100)
+  stores    Json     @db.JsonB
+  bestPrice Json     @map("best_price") @db.JsonB
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("price_comparisons")
+}
+
+// ============================================================================
+// COMMUNITY FEATURES
+// ============================================================================
+
+model CommunitySurplusPost {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  userName      String    @map("user_name") @db.VarChar(255)
+  avatarUrl     String?   @map("avatar_url") @db.Text
+  title         String    @db.VarChar(255)
+  description   String    @db.Text
+  category      String    @db.VarChar(100)
+  tags          String[]  @db.Text
+  quantity      Decimal   @db.Decimal(10, 2)
+  unit          String    @db.VarChar(50)
+  pickupWindow  Json      @map("pickup_window") @db.JsonB
+  pickupLocation String   @map("pickup_location") @db.Text
+  distanceKm    Decimal?  @map("distance_km") @db.Decimal(10, 2)
+  image         String?   @db.Text
+  status        Status    @default(available)
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requests  SurplusRequest[]
+  comments  SurplusComment[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("community_surplus_posts")
+}
+
+model SurplusRequest {
+  id        String   @id @default(uuid()) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  userName  String   @map("user_name") @db.VarChar(255)
+  message   String?  @db.Text
+  status    Status   @default(pending)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  post  CommunitySurplusPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("surplus_requests")
+}
+
+model SurplusComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  userName  String   @map("user_name") @db.VarChar(255)
+  message   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  post  CommunitySurplusPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("surplus_comments")
+}
+
+model LeftoverItem {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  userName      String   @map("user_name") @db.VarChar(255)
+  avatarUrl     String?  @map("avatar_url") @db.Text
+  dishName      String   @map("dish_name") @db.VarChar(255)
+  description   String   @db.Text
+  portions      Int
+  distanceKm    Decimal  @map("distance_km") @db.Decimal(10, 2)
+  dietaryTags   String[] @map("dietary_tags") @db.Text
+  allergens     String[] @db.Text
+  pickupWindow  String   @map("pickup_window") @db.Text
+  status        Status   @default(available)
+  image         String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  claims  LeftoverItemClaim[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("leftover_items")
+}
+
+model LeftoverItemClaim {
+  id            String   @id @default(uuid()) @db.Uuid
+  leftoverItemId String  @map("leftover_item_id") @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  userName      String   @map("user_name") @db.VarChar(255)
+  message       String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  leftoverItem  LeftoverItem  @relation(fields: [leftoverItemId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("leftover_item_claims")
+}
+
+model CommunityKitchenEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  title         String   @db.VarChar(255)
+  description   String   @db.Text
+  date          DateTime @db.Date
+  time          String   @db.Time
+  location      String   @db.Text
+  tags          String[] @db.Text
+  volunteersNeeded Int   @default(0) @map("volunteers_needed")
+  volunteers    Json?    @db.JsonB
+  foodSavedKg   Decimal  @default(0) @map("food_saved_kg") @db.Decimal(10, 2)
+  status        Status   @default(upcoming)
+  image         String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([date])
+  @@map("community_kitchen_events")
+}
+
+model CommunityLeaderboard {
+  id        String   @id @default(uuid()) @db.Uuid
+  type      String   @db.VarChar(50)
+  entries   Json     @db.JsonB
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("community_leaderboard")
+}
+
+model CommunityImpact {
+  id                  String   @id @default(uuid()) @db.Uuid
+  totalSurplusKg      Decimal  @default(0) @map("total_surplus_kg") @db.Decimal(10, 2)
+  donations           Int      @default(0)
+  co2PreventedKg      Decimal  @default(0) @map("co2_prevented_kg") @db.Decimal(10, 2)
+  waterSavedLiters    Decimal  @default(0) @map("water_saved_liters") @db.Decimal(10, 2)
+  mealsProvided       Int      @default(0) @map("meals_provided")
+  weeklyTrend         Json?    @map("weekly_trend") @db.JsonB
+  personalContribution Json?   @map("personal_contribution") @db.JsonB
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("community_impact")
+}
+
+model CommunityNotification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  title     String           @db.VarChar(255)
+  message   String           @db.Text
+  type      String           @db.VarChar(50)
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+  @@map("community_notifications")
+}
+
+model CommunityProfile {
+  id                    String      @id @default(uuid()) @db.Uuid
+  userId                String      @unique @map("user_id") @db.Uuid
+  username              String      @unique @db.VarChar(255)
+  avatarUrl             String?     @map("avatar_url") @db.Text
+  communityRole         String      @default("member") @map("community_role") @db.VarChar(50)
+  bio                   String?     @db.Text
+  preferredItems        String[]    @map("preferred_items") @db.Text
+  avoidItems            String[]    @map("avoid_items") @db.Text
+  dietaryRestrictions   String[]    @map("dietary_restrictions") @db.Text
+  allergens             String[]    @db.Text
+  acceptsHotMeals       Boolean     @default(false) @map("accepts_hot_meals")
+  distancePreference    String?     @map("distance_preference") @db.VarChar(10)
+  visibility            String      @default("public") @db.VarChar(20)
+  notificationsEnabled  Boolean     @default(true) @map("notifications_enabled")
+  notifyOnClaim         Boolean     @default(true) @map("notify_on_claim")
+  notifyOnMessages      Boolean     @default(true) @map("notify_on_messages")
+  createdAt             DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("community_profiles")
+}
+
+// ============================================================================
+// RESTAURANT MODULE
+// ============================================================================
+
+model RestaurantInventoryItem {
+  id            String              @id @default(uuid()) @db.Uuid
+  userId        String              @map("user_id") @db.Uuid
+  name          String              @db.VarChar(255)
+  quantity      Decimal             @db.Decimal(10, 2)
+  unit          String              @db.VarChar(50)
+  category      String              @db.VarChar(100)
+  expiryDate    DateTime            @map("expiry_date") @db.Timestamptz(6)
+  storageType   RestaurantStorageType @map("storage_type")
+  batchCode     String?             @map("batch_code") @db.VarChar(100)
+  alertTags     String[]            @map("alert_tags") @db.Text
+  status        RestaurantItemStatus @default(normal)
+  invoiceImage  String?             @map("invoice_image") @db.Text
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime            @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("restaurant_inventory_items")
+}
+
+model RestaurantMenuItem {
+  id                String      @id @default(uuid()) @db.Uuid
+  userId            String      @map("user_id") @db.Uuid
+  name              String      @db.VarChar(255)
+  category          String      @db.VarChar(100)
+  ingredients       Json        @db.JsonB
+  predictedWasteScore WasteScore? @map("predicted_waste_score")
+  price             Decimal     @db.Decimal(10, 2)
+  margin            Decimal     @db.Decimal(10, 2)
+  suggestions       String[]    @db.Text
+  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_menu_items")
+}
+
+model RestaurantSurplusItem {
+  id            String                @id @default(uuid()) @db.Uuid
+  userId        String                @map("user_id") @db.Uuid
+  title         String                @db.VarChar(255)
+  description   String                @db.Text
+  quantity      Decimal               @db.Decimal(10, 2)
+  unit          String                @db.VarChar(50)
+  category      String                @db.VarChar(100)
+  storageType   RestaurantStorageType @map("storage_type")
+  pickupWindow  Json                  @map("pickup_window") @db.JsonB
+  tags          String[]              @db.Text
+  image         String?               @db.Text
+  assignedTo    String?               @map("assigned_to") @db.VarChar(50)
+  recipientName String?               @map("recipient_name") @db.VarChar(255)
+  status        Status                @default(pending)
+  createdAt     DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("restaurant_surplus_items")
+}
+
+model RestaurantDonationLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  date            DateTime @db.Date
+  recipientType   String   @map("recipient_type") @db.VarChar(50)
+  recipientName   String   @map("recipient_name") @db.VarChar(255)
+  items           String   @db.Text
+  quantity        Decimal  @db.Decimal(10, 2)
+  unit            String   @db.VarChar(50)
+  mealsProvided   Int      @default(0) @map("meals_provided")
+  co2SavedKg      Decimal  @default(0) @map("co2_saved_kg") @db.Decimal(10, 2)
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("restaurant_donation_logs")
+}
+
+model RestaurantImpactMetric {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @unique @map("user_id") @db.Uuid
+  wastePreventedKg  Decimal  @default(0) @map("waste_prevented_kg") @db.Decimal(10, 2)
+  surplusDonationRate Decimal @default(0) @map("surplus_donation_rate") @db.Decimal(5, 2)
+  waterSavedLiters  Decimal  @default(0) @map("water_saved_liters") @db.Decimal(10, 2)
+  co2PreventedKg    Decimal  @default(0) @map("co2_prevented_kg") @db.Decimal(10, 2)
+  sustainabilityScore Int    @default(0) @map("sustainability_score")
+  weeklyTrend       Json?    @map("weekly_trend") @db.JsonB
+  monthlyTrend      Json?    @map("monthly_trend") @db.JsonB
+  categoryBreakdown Json?    @map("category_breakdown") @db.JsonB
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_impact_metrics")
+}
+
+model RestaurantStaffTask {
+  id          String         @id @default(uuid()) @db.Uuid
+  userId      String         @map("user_id") @db.Uuid
+  title       String         @db.VarChar(255)
+  description String?        @db.Text
+  assignee    String         @db.VarChar(255)
+  shift       String         @db.VarChar(100)
+  completed   Boolean        @default(false)
+  priority    TaskPriority   @default(medium)
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_staff_tasks")
+}
+
+model RestaurantShiftSchedule {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  role      String   @db.VarChar(100)
+  staff     String   @db.VarChar(255)
+  time      String   @db.VarChar(100)
+  notes     String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_shift_schedule")
+}
+
+model RestaurantPreferences {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @unique @map("user_id") @db.Uuid
+  cuisineType       String?  @map("cuisine_type") @db.VarChar(100)
+  operatingHours    String?  @map("operating_hours") @db.Text
+  donationPreferences String[] @map("donation_preferences") @db.Text
+  storageCapabilities String[] @map("storage_capabilities") @db.Text
+  staffRoles        String[] @map("staff_roles") @db.Text
+  notificationsEnabled Boolean @default(true) @map("notifications_enabled")
+  notifyOnPickup    Boolean  @default(true) @map("notify_on_pickup")
+  notifyOnExpiry    Boolean  @default(true) @map("notify_on_expiry")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_preferences")
+}
+
+// ============================================================================
+// NGO MODULE
+// ============================================================================
+
+model NgoCapacitySetting {
+  id                      String    @id @default(uuid()) @db.Uuid
+  userId                  String    @unique @map("user_id") @db.Uuid
+  orgName                 String    @map("org_name") @db.VarChar(255)
+  location                String    @db.Text
+  geoPoint                Json?     @map("geo_point") @db.JsonB
+  managerName             String    @map("manager_name") @db.VarChar(255)
+  contactPhone            String    @map("contact_phone") @db.VarChar(50)
+  contactEmail            String?   @map("contact_email") @db.VarChar(255)
+  preferredFoodTypes      String[]  @map("preferred_food_types") @db.Text
+  restrictedItems         String[]  @map("restricted_items") @db.Text
+  storageTypes            String[]  @map("storage_types") @db.Text
+  safetyRules             String[]  @map("safety_rules") @db.Text
+  policyNotes             String?   @map("policy_notes") @db.Text
+  pickupWindow            Json      @map("pickup_window") @db.JsonB
+  dailyCapacityKg         Decimal   @map("daily_capacity_kg") @db.Decimal(10, 2)
+  refrigeratedCapacityKg  Decimal   @default(0) @map("refrigerated_capacity_kg") @db.Decimal(10, 2)
+  dryCapacityKg           Decimal   @default(0) @map("dry_capacity_kg") @db.Decimal(10, 2)
+  currentUtilizationKg    Decimal   @default(0) @map("current_utilization_kg") @db.Decimal(10, 2)
+  xpPoints                Int       @default(0) @map("xp_points")
+  level                   Int       @default(1)
+  levelProgressPct        Decimal   @default(0) @map("level_progress_pct") @db.Decimal(5, 2)
+  autoAcceptance          Json?     @map("auto_acceptance") @db.JsonB
+  preferredPickupRadiusKm Decimal   @default(5.0) @map("preferred_pickup_radius_km") @db.Decimal(10, 2)
+  updatedAt               DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ngo_capacity_settings")
+}
+
+model NgoDonationOffer {
+  id            String      @id @default(uuid()) @db.Uuid
+  ngoUserId     String      @map("ngo_user_id") @db.Uuid
+  donorName     String      @map("donor_name") @db.VarChar(255)
+  donorType     String      @map("donor_type") @db.VarChar(50)
+  partnerId     String?     @map("partner_id") @db.Uuid
+  distanceKm    Decimal     @map("distance_km") @db.Decimal(10, 2)
+  locationLabel String      @map("location_label") @db.Text
+  geoPoint      Json?       @map("geo_point") @db.JsonB
+  offerTitle    String      @map("offer_title") @db.VarChar(255)
+  items         Json        @db.JsonB
+  weightKg      Decimal     @map("weight_kg") @db.Decimal(10, 2)
+  mealsEstimated Int        @default(0) @map("meals_estimated")
+  freshnessScore Int        @default(0) @map("freshness_score")
+  pickupWindow  Json        @map("pickup_window") @db.JsonB
+  expiresAt     DateTime    @map("expires_at") @db.Timestamptz(6)
+  urgencyLevel  UrgencyLevel @default(medium) @map("urgency_level")
+  dietaryNotes  String?     @map("dietary_notes") @db.Text
+  safetyFlags   String[]    @map("safety_flags") @db.Text
+  contact       Json        @db.JsonB
+  images        String[]    @db.Text
+  status        Status      @default(pending)
+  matchReason   String?     @map("match_reason") @db.Text
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  ngoUser  User                @relation("NgoDonationOffers", fields: [ngoUserId], references: [id], onDelete: Cascade)
+  donor    User?               @relation("NgoDonationOffersDonor", fields: [partnerId], references: [id], onDelete: SetNull)
+  pickups  NgoPickupSchedule[]
+  history  NgoDonationHistory[]
+
+  @@index([ngoUserId])
+  @@index([status])
+  @@map("ngo_donation_offers")
+}
+
+model NgoPickupSchedule {
+  id          String   @id @default(uuid()) @db.Uuid
+  offerId     String   @map("offer_id") @db.Uuid
+  routeId     String?  @map("route_id") @db.Uuid
+  scheduledFor DateTime @map("scheduled_for") @db.Timestamptz(6)
+  etaMinutes  Int?     @map("eta_minutes")
+  volunteerName String @map("volunteer_name") @db.VarChar(255)
+  volunteerContact String @map("volunteer_contact") @db.VarChar(255)
+  vehicleType String?  @map("vehicle_type") @db.VarChar(20)
+  status      Status   @default(scheduled)
+  checkpoints Json?    @db.JsonB
+  reminders   Json?    @db.JsonB
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  offer NgoDonationOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@index([offerId])
+  @@map("ngo_pickup_schedules")
+}
+
+model NgoDonationHistory {
+  id            String   @id @default(uuid()) @db.Uuid
+  ngoUserId     String   @map("ngo_user_id") @db.Uuid
+  offerId       String?  @map("offer_id") @db.Uuid
+  donorName     String   @map("donor_name") @db.VarChar(255)
+  donorType     String   @map("donor_type") @db.VarChar(50)
+  itemsSummary  String   @map("items_summary") @db.Text
+  weightKg      Decimal  @map("weight_kg") @db.Decimal(10, 2)
+  mealsProvided Int      @default(0) @map("meals_provided")
+  co2PreventedKg Decimal @default(0) @map("co2_prevented_kg") @db.Decimal(10, 2)
+  beneficiaries Int      @default(0)
+  pickupTime    DateTime @map("pickup_time") @db.Timestamptz(6)
+  deliveredAt   DateTime? @map("delivered_at") @db.Timestamptz(6)
+  status        Status   @default(delivered)
+  tags          String[] @db.Text
+  photo         String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  ngoUser User           @relation(fields: [ngoUserId], references: [id], onDelete: Cascade)
+  offer   NgoDonationOffer? @relation(fields: [offerId], references: [id], onDelete: SetNull)
+
+  @@index([ngoUserId])
+  @@map("ngo_donation_history")
+}
+
+model NgoPartnerProfile {
+  id              String   @id @default(uuid()) @db.Uuid
+  ngoUserId       String   @map("ngo_user_id") @db.Uuid
+  name            String   @db.VarChar(255)
+  type            String   @db.VarChar(50)
+  location        String   @db.Text
+  distanceKm      Decimal? @map("distance_km") @db.Decimal(10, 2)
+  contactName     String   @map("contact_name") @db.VarChar(255)
+  contactPhone    String   @map("contact_phone") @db.VarChar(50)
+  contactEmail    String?  @map("contact_email") @db.VarChar(255)
+  operatingHours  String?  @map("operating_hours") @db.Text
+  acceptanceRate  Decimal  @default(0) @map("acceptance_rate") @db.Decimal(5, 2)
+  lastDonationAt  DateTime? @map("last_donation_at") @db.Timestamptz(6)
+  avgDonationKg   Decimal  @default(0) @map("avg_donation_kg") @db.Decimal(10, 2)
+  storageCapabilities String[] @map("storage_capabilities") @db.Text
+  notes           String?  @db.Text
+  avatar          String?  @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  ngoUser User @relation(fields: [ngoUserId], references: [id], onDelete: Cascade)
+
+  @@map("ngo_partner_profiles")
+}
+
+model NgoFeedbackEntry {
+  id              String   @id @default(uuid()) @db.Uuid
+  ngoUserId       String   @map("ngo_user_id") @db.Uuid
+  recipientName   String   @map("recipient_name") @db.VarChar(255)
+  partnerName     String   @map("partner_name") @db.VarChar(255)
+  deliveryDate    DateTime @map("delivery_date") @db.Date
+  rating          Int?
+  comment         String   @db.Text
+  tags            String[] @db.Text
+  photo           String?  @db.Text
+  status          Status   @default(pending)
+  correctiveAction String? @map("corrective_action") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  ngoUser User @relation(fields: [ngoUserId], references: [id], onDelete: Cascade)
+
+  @@map("ngo_feedback_entries")
+}
+
+model NgoImpactStory {
+  id              String   @id @default(uuid()) @db.Uuid
+  ngoUserId       String   @map("ngo_user_id") @db.Uuid
+  title           String   @db.VarChar(255)
+  excerpt         String   @db.Text
+  beneficiaryType String   @map("beneficiary_type") @db.VarChar(100)
+  image           String?  @db.Text
+  metrics         Json     @db.JsonB
+  publishedAt     DateTime @default(now()) @map("published_at") @db.Timestamptz(6)
+
+  // Relations
+  ngoUser User @relation(fields: [ngoUserId], references: [id], onDelete: Cascade)
+
+  @@map("ngo_impact_stories")
+}
+
+model NgoNotification {
+  id              String   @id @default(uuid()) @db.Uuid
+  ngoUserId       String   @map("ngo_user_id") @db.Uuid
+  type            String   @db.VarChar(50)
+  title           String   @db.VarChar(255)
+  description     String   @db.Text
+  relatedEntityId String?  @map("related_entity_id") @db.Uuid
+  severity        Severity @default(info)
+  read            Boolean  @default(false)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  ngoUser User @relation(fields: [ngoUserId], references: [id], onDelete: Cascade)
+
+  @@index([ngoUserId])
+  @@index([read])
+  @@map("ngo_notifications")
+}
+
+// ============================================================================
+// SHOP MODULE
+// ============================================================================
+
+model ShopInventoryItem {
+  id              String          @id @default(uuid()) @db.Uuid
+  userId          String          @map("user_id") @db.Uuid
+  name            String          @db.VarChar(255)
+  category        String          @db.VarChar(100)
+  barcode         String          @db.VarChar(255)
+  stockQuantity   Decimal         @map("stock_quantity") @db.Decimal(10, 2)
+  unit            String          @db.VarChar(50)
+  price           Decimal         @db.Decimal(10, 2)
+  cost            Decimal         @db.Decimal(10, 2)
+  expiryDate      DateTime        @map("expiry_date") @db.Timestamptz(6)
+  storageType     ShopStorageType @map("storage_type")
+  shelfLocation   String?         @map("shelf_location") @db.VarChar(100)
+  imageData       String?         @map("image_data") @db.Text
+  markdownStatus  String          @default("none") @map("markdown_status") @db.VarChar(20)
+  surplusEligible Boolean         @default(false) @map("surplus_eligible")
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  priceMapEntries    ShopPriceMapEntry[]
+  discountSuggestions ShopDiscountSuggestion[]
+
+  @@index([userId])
+  @@index([barcode])
+  @@index([expiryDate])
+  @@map("shop_inventory_items")
+}
+
+model ShopPriceMapEntry {
+  id          String      @id @default(uuid()) @db.Uuid
+  userId      String      @map("user_id") @db.Uuid
+  skuId       String      @map("sku_id") @db.Uuid
+  skuName     String      @map("sku_name") @db.VarChar(255)
+  oldPrice    Decimal     @map("old_price") @db.Decimal(10, 2)
+  newPrice    Decimal     @map("new_price") @db.Decimal(10, 2)
+  method      PriceMapMethod
+  changeValue Decimal     @map("change_value") @db.Decimal(10, 2)
+  effectiveAt DateTime    @map("effective_at") @db.Timestamptz(6)
+  scheduledBy String      @map("scheduled_by") @db.VarChar(255)
+  notes       String?     @db.Text
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user   User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sku    ShopInventoryItem   @relation(fields: [skuId], references: [id], onDelete: Cascade)
+
+  @@map("shop_price_map_entries")
+}
+
+model ShopDiscountSuggestion {
+  id                  String   @id @default(uuid()) @db.Uuid
+  userId              String   @map("user_id") @db.Uuid
+  skuId               String   @map("sku_id") @db.Uuid
+  skuName             String   @map("sku_name") @db.VarChar(255)
+  reason              String   @db.Text
+  suggestedDiscountPct Decimal @map("suggested_discount_pct") @db.Decimal(5, 2)
+  predictedSellThrough Decimal @default(0) @map("predicted_sell_through") @db.Decimal(5, 2)
+  urgency             UrgencyLevel @default(medium)
+  expiresAt           DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sku  ShopInventoryItem @relation(fields: [skuId], references: [id], onDelete: Cascade)
+
+  @@map("shop_discount_suggestions")
+}
+
+model ShopSurplusItem {
+  id                String      @id @default(uuid()) @db.Uuid
+  userId            String      @map("user_id") @db.Uuid
+  skuName           String      @map("sku_name") @db.VarChar(255)
+  quantity          Decimal     @db.Decimal(10, 2)
+  unit              String      @db.VarChar(50)
+  expiryWindowStart DateTime    @map("expiry_window_start") @db.Timestamptz(6)
+  expiryWindowEnd   DateTime    @map("expiry_window_end") @db.Timestamptz(6)
+  condition         Condition
+  destinationType   String?     @map("destination_type") @db.VarChar(50)
+  destinationName   String?     @map("destination_name") @db.VarChar(255)
+  status            Status      @default(pending)
+  pickupTime        DateTime?   @map("pickup_time") @db.Timestamptz(6)
+  reminderSent      Boolean     @default(false) @map("reminder_sent")
+  imageData         String?     @map("image_data") @db.Text
+  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("shop_surplus_items")
+}
+
+model ShopAnalyticsRecord {
+  id                      String   @id @default(uuid()) @db.Uuid
+  userId                  String   @unique @map("user_id") @db.Uuid
+  wasteReductionTrend     Json?    @map("waste_reduction_trend") @db.JsonB
+  markdownRecoveryTrend   Json?    @map("markdown_recovery_trend") @db.JsonB
+  wasteByCategory         Json?    @map("waste_by_category") @db.JsonB
+  surplusVsSold           Json?    @map("surplus_vs_sold") @db.JsonB
+  expiredPerDay           Json?    @map("expired_per_day") @db.JsonB
+  totalCo2Prevented       Decimal  @default(0) @map("total_co2_prevented") @db.Decimal(10, 2)
+  mealsDonated            Int      @default(0) @map("meals_donated")
+  wasteReductionPercent   Decimal  @default(0) @map("waste_reduction_percent") @db.Decimal(5, 2)
+  updatedAt               DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("shop_analytics_records")
+}
+
+model ShopStaffMember {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  name          String   @db.VarChar(255)
+  role          String   @db.VarChar(100)
+  shift         String   @db.VarChar(100)
+  contact       String   @db.VarChar(255)
+  avatar        String?  @db.Text
+  responsibilities String[] @db.Text
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks  ShopStaffTask[]
+  shifts ShopShift[]
+
+  @@map("shop_staff_members")
+}
+
+model ShopStaffTask {
+  id          String       @id @default(uuid()) @db.Uuid
+  userId      String       @map("user_id") @db.Uuid
+  title       String       @db.VarChar(255)
+  description String?      @db.Text
+  assigneeId  String?      @map("assignee_id") @db.Uuid
+  due         DateTime     @db.Timestamptz(6)
+  completed   Boolean      @default(false)
+  category    TaskCategory?
+  priority    TaskPriority @default(medium)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignee ShopStaffMember? @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  @@map("shop_staff_tasks")
+}
+
+model ShopShift {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  staffId   String   @map("staff_id") @db.Uuid
+  day       String   @db.VarChar(20)
+  startTime String   @map("start_time") @db.Time
+  endTime   String   @map("end_time") @db.Time
+  station   String   @db.VarChar(100)
+  notes     String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  staff ShopStaffMember @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@map("shop_shifts")
+}
+
+model ShopProfile {
+  id                      String   @id @default(uuid()) @db.Uuid
+  userId                  String   @unique @map("user_id") @db.Uuid
+  storeName               String   @map("store_name") @db.VarChar(255)
+  address                 String   @db.Text
+  contactNumber           String   @map("contact_number") @db.VarChar(50)
+  managerName             String   @map("manager_name") @db.VarChar(255)
+  operatingHours          String   @map("operating_hours") @db.Text
+  notificationPreferences Json?    @map("notification_preferences") @db.JsonB
+  donationPreferences     String[] @map("donation_preferences") @db.Text
+  categoryPriority        String[] @map("category_priority") @db.Text
+  barcodePrefix           String?  @map("barcode_prefix") @db.VarChar(50)
+  updatedAt               DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("shop_profiles")
+}
