@@ -7,7 +7,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Connection URL is now passed directly to PrismaClient constructor
+  // For Prisma Accelerate, use accelerateUrl in PrismaClient
 }
 
 // ============================================================================
@@ -661,7 +662,7 @@ model CommunityKitchenEvent {
   title         String   @db.VarChar(255)
   description   String   @db.Text
   date          DateTime @db.Date
-  time          String   @db.Time
+  time          String   @db.VarChar(20)
   location      String   @db.Text
   tags          String[] @db.Text
   volunteersNeeded Int   @default(0) @map("volunteers_needed")
@@ -981,6 +982,7 @@ model NgoDonationOffer {
 
 model NgoPickupSchedule {
   id          String   @id @default(uuid()) @db.Uuid
+  ngoUserId   String   @map("ngo_user_id") @db.Uuid
   offerId     String   @map("offer_id") @db.Uuid
   routeId     String?  @map("route_id") @db.Uuid
   scheduledFor DateTime @map("scheduled_for") @db.Timestamptz(6)
@@ -996,9 +998,11 @@ model NgoPickupSchedule {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
-  offer NgoDonationOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  ngoUser User            @relation(fields: [ngoUserId], references: [id], onDelete: Cascade)
+  offer   NgoDonationOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
 
   @@index([offerId])
+  @@index([ngoUserId])
   @@map("ngo_pickup_schedules")
 }
 
@@ -1271,8 +1275,8 @@ model ShopShift {
   userId    String   @map("user_id") @db.Uuid
   staffId   String   @map("staff_id") @db.Uuid
   day       String   @db.VarChar(20)
-  startTime String   @map("start_time") @db.Time
-  endTime   String   @map("end_time") @db.Time
+  startTime String   @map("start_time") @db.VarChar(20)
+  endTime   String   @map("end_time") @db.VarChar(20)
   station   String   @db.VarChar(100)
   notes     String?  @db.Text
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
