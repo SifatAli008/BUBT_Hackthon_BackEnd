@@ -96,3 +96,33 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Quick Start
+
+1. Clone the repository
+2. Install dependencies: \
+pm install\
+3. Copy \.env.example\ to \.env\ and configure
+4. Generate Prisma Client: \
+px prisma generate\
+5. Run migrations: \
+px prisma migrate dev\
+6. Start server: \
+pm run start:dev\
+
+## Documentation
+
+See the [docs](./docs) folder for detailed documentation:
+- [Setup Guide](./docs/SETUP.md)
+- [API Documentation](./docs/API.md)
+- [Architecture](./docs/ARCHITECTURE.md)
+- [Deployment](./docs/DEPLOYMENT.md)
+
+## Features
+
+- ✅ NestJS framework
+- ✅ Prisma ORM with Accelerate support
+- ✅ Raw SQL query support
+- ✅ JWT authentication
+- ✅ TypeScript strict mode
+- ✅ Comprehensive error handling
