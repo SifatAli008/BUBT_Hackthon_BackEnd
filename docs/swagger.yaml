@@ -1,0 +1,5213 @@
+basePath: /api/v1
+definitions:
+  auth.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+      user:
+        $ref: '#/definitions/auth.User'
+    type: object
+  auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      password:
+        minLength: 8
+        type: string
+      role:
+        enum:
+        - family
+        - restaurant
+        - shop
+        - ngo
+        - admin
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  auth.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      household_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  auth.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      household_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  badges.AvailableBadge:
+    properties:
+      badge_id:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      name:
+        type: string
+      xp_reward:
+        type: integer
+    type: object
+  badges.Badge:
+    properties:
+      badge_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      unlocked_at:
+        type: string
+      user_id:
+        type: string
+      xp_reward:
+        type: integer
+    type: object
+  badges.UnlockBadgeRequest:
+    properties:
+      badge_id:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      name:
+        type: string
+      xp_reward:
+        type: integer
+    required:
+    - badge_id
+    - name
+    type: object
+  capacity.CreateNGOCapacitySettingsRequest:
+    properties:
+      auto_acceptance:
+        additionalProperties: true
+        type: object
+      contact_email:
+        type: string
+      contact_phone:
+        maxLength: 50
+        minLength: 1
+        type: string
+      daily_capacity_kg:
+        type: number
+      dry_capacity_kg:
+        type: number
+      geo_point:
+        additionalProperties: true
+        type: object
+      location:
+        minLength: 1
+        type: string
+      manager_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      org_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      pickup_window:
+        additionalProperties: true
+        type: object
+      policy_notes:
+        type: string
+      preferred_food_types:
+        items:
+          type: string
+        type: array
+      preferred_pickup_radius_km:
+        type: number
+      refrigerated_capacity_kg:
+        type: number
+      restricted_items:
+        items:
+          type: string
+        type: array
+      safety_rules:
+        items:
+          type: string
+        type: array
+      storage_types:
+        items:
+          type: string
+        type: array
+    required:
+    - contact_phone
+    - daily_capacity_kg
+    - location
+    - manager_name
+    - org_name
+    - pickup_window
+    type: object
+  capacity.JSONB:
+    additionalProperties: true
+    type: object
+  capacity.NGOCapacitySettings:
+    properties:
+      auto_acceptance:
+        $ref: '#/definitions/capacity.JSONB'
+      contact_email:
+        type: string
+      contact_phone:
+        type: string
+      current_utilization_kg:
+        type: number
+      daily_capacity_kg:
+        type: number
+      dry_capacity_kg:
+        type: number
+      geo_point:
+        $ref: '#/definitions/capacity.JSONB'
+      id:
+        type: string
+      level:
+        type: integer
+      level_progress_pct:
+        type: number
+      location:
+        type: string
+      manager_name:
+        type: string
+      org_name:
+        type: string
+      pickup_window:
+        $ref: '#/definitions/capacity.JSONB'
+      policy_notes:
+        type: string
+      preferred_food_types:
+        items:
+          type: string
+        type: array
+      preferred_pickup_radius_km:
+        type: number
+      refrigerated_capacity_kg:
+        type: number
+      restricted_items:
+        items:
+          type: string
+        type: array
+      safety_rules:
+        items:
+          type: string
+        type: array
+      storage_types:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      xp_points:
+        type: integer
+    type: object
+  consumption.ConsumptionLog:
+    properties:
+      category:
+        type: string
+      consumed_at:
+        type: string
+      created_at:
+        type: string
+      food_name:
+        type: string
+      id:
+        type: string
+      inventory_item_id:
+        type: string
+      notes:
+        type: string
+      quantity:
+        type: number
+      unit:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      was_wasted:
+        type: boolean
+    type: object
+  consumption.ConsumptionStats:
+    properties:
+      total_consumed:
+        type: number
+      total_logs:
+        type: integer
+      total_wasted:
+        type: number
+      waste_percentage:
+        type: number
+    type: object
+  consumption.CreateConsumptionLogRequest:
+    properties:
+      category:
+        maxLength: 100
+        type: string
+      consumed_at:
+        type: string
+      food_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      inventory_item_id:
+        type: string
+      notes:
+        type: string
+      quantity:
+        type: number
+      unit:
+        maxLength: 50
+        type: string
+      was_wasted:
+        type: boolean
+    required:
+    - food_name
+    - quantity
+    type: object
+  consumption.UpdateConsumptionLogRequest:
+    properties:
+      category:
+        maxLength: 100
+        type: string
+      consumed_at:
+        type: string
+      food_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      notes:
+        type: string
+      quantity:
+        type: number
+      unit:
+        maxLength: 50
+        type: string
+      was_wasted:
+        type: boolean
+    type: object
+  donations.CreateDonationLogRequest:
+    properties:
+      co2_saved_kg:
+        type: number
+      date:
+        type: string
+      items:
+        minLength: 1
+        type: string
+      meals_provided:
+        type: integer
+      notes:
+        type: string
+      quantity:
+        type: number
+      recipient_name:
+        minLength: 1
+        type: string
+      recipient_type:
+        enum:
+        - ngo
+        - community-kitchen
+        type: string
+      unit:
+        minLength: 1
+        type: string
+    required:
+    - date
+    - items
+    - quantity
+    - recipient_name
+    - recipient_type
+    - unit
+    type: object
+  donations.DonationLog:
+    properties:
+      co2_saved_kg:
+        type: number
+      created_at:
+        type: string
+      date:
+        type: string
+      id:
+        type: string
+      items:
+        type: string
+      meals_provided:
+        type: integer
+      notes:
+        type: string
+      quantity:
+        type: number
+      recipient_name:
+        type: string
+      recipient_type:
+        type: string
+      unit:
+        type: string
+      user_id:
+        type: string
+    type: object
+  donations.ImpactMetrics:
+    properties:
+      category_breakdown:
+        $ref: '#/definitions/donations.JSONB'
+      co2_prevented_kg:
+        type: number
+      id:
+        type: string
+      monthly_trend:
+        $ref: '#/definitions/donations.JSONB'
+      surplus_donation_rate:
+        type: number
+      sustainability_score:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      waste_prevented_kg:
+        type: number
+      water_saved_liters:
+        type: number
+      weekly_trend:
+        $ref: '#/definitions/donations.JSONB'
+    type: object
+  donations.JSONB:
+    additionalProperties: true
+    type: object
+  errors.AppError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  food_items.CreateFoodItemRequest:
+    properties:
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      storage_tips:
+        type: string
+      typical_expiry_days:
+        minimum: 1
+        type: integer
+    required:
+    - category
+    - name
+    - typical_expiry_days
+    type: object
+  food_items.FoodItem:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      storage_tips:
+        type: string
+      typical_expiry_days:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  food_items.UpdateFoodItemRequest:
+    properties:
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      storage_tips:
+        type: string
+      typical_expiry_days:
+        minimum: 1
+        type: integer
+    type: object
+  foodlink_backend_features_community_surplus.JSONB:
+    additionalProperties: true
+    type: object
+  foodlink_backend_features_restaurant_surplus.JSONB:
+    additionalProperties: true
+    type: object
+  handlers.APIResponse:
+    properties:
+      message:
+        example: Welcome to Foodlink API v1
+        type: string
+    type: object
+  handlers.HealthResponse:
+    properties:
+      database:
+        example: connected
+        type: string
+      message:
+        example: Server is running
+        type: string
+      status:
+        example: ok
+        type: string
+    type: object
+  inventory.CreateInventoryItemRequest:
+    properties:
+      category:
+        maxLength: 100
+        type: string
+      expiry_date:
+        type: string
+      food_item_id:
+        type: string
+      location:
+        maxLength: 100
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      quantity:
+        type: number
+      unit:
+        maxLength: 50
+        type: string
+    required:
+    - name
+    - quantity
+    type: object
+  inventory.CreateRestaurantInventoryItemRequest:
+    properties:
+      alert_tags:
+        items:
+          type: string
+        type: array
+      batch_code:
+        maxLength: 100
+        type: string
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      expiry_date:
+        type: string
+      invoice_image:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      quantity:
+        type: number
+      storage_type:
+        enum:
+        - fresh
+        - chilled
+        - frozen
+        - dry
+        type: string
+      unit:
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - category
+    - expiry_date
+    - name
+    - quantity
+    - storage_type
+    - unit
+    type: object
+  inventory.InventoryItem:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      expiry_date:
+        type: string
+      food_item_id:
+        type: string
+      id:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: number
+      unit:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  inventory.RestaurantInventoryItem:
+    properties:
+      alert_tags:
+        items:
+          type: string
+        type: array
+      batch_code:
+        type: string
+      category:
+        type: string
+      created_at:
+        type: string
+      expiry_date:
+        type: string
+      id:
+        type: string
+      invoice_image:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: number
+      status:
+        type: string
+      storage_type:
+        type: string
+      unit:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  inventory.UpdateInventoryItemRequest:
+    properties:
+      category:
+        maxLength: 100
+        type: string
+      expiry_date:
+        type: string
+      food_item_id:
+        type: string
+      location:
+        maxLength: 100
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      quantity:
+        type: number
+      unit:
+        maxLength: 50
+        type: string
+    type: object
+  inventory.UpdateRestaurantInventoryItemRequest:
+    properties:
+      alert_tags:
+        items:
+          type: string
+        type: array
+      batch_code:
+        maxLength: 100
+        type: string
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      expiry_date:
+        type: string
+      invoice_image:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      quantity:
+        type: number
+      status:
+        type: string
+      storage_type:
+        enum:
+        - fresh
+        - chilled
+        - frozen
+        - dry
+        type: string
+      unit:
+        maxLength: 50
+        minLength: 1
+        type: string
+    type: object
+  kitchen_events.CreateKitchenEventRequest:
+    properties:
+      date:
+        type: string
+      description:
+        minLength: 1
+        type: string
+      image:
+        type: string
+      location:
+        minLength: 1
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      time:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      volunteers_needed:
+        type: integer
+    required:
+    - date
+    - description
+    - location
+    - time
+    - title
+    type: object
+  kitchen_events.JSONB:
+    additionalProperties: true
+    type: object
+  kitchen_events.KitchenEvent:
+    properties:
+      created_at:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      food_saved_kg:
+        type: number
+      id:
+        type: string
+      image:
+        type: string
+      location:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      time:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      volunteers:
+        $ref: '#/definitions/kitchen_events.JSONB'
+      volunteers_needed:
+        type: integer
+    type: object
+  kitchen_events.UpdateKitchenEventRequest:
+    properties:
+      date:
+        type: string
+      description:
+        minLength: 1
+        type: string
+      food_saved_kg:
+        type: number
+      image:
+        type: string
+      location:
+        minLength: 1
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      time:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      volunteers_needed:
+        type: integer
+    type: object
+  kitchen_events.VolunteerRequest:
+    properties:
+      role:
+        type: string
+    type: object
+  leaderboard.Impact:
+    properties:
+      co2_prevented_kg:
+        type: number
+      donations:
+        type: integer
+      id:
+        type: string
+      meals_provided:
+        type: integer
+      personal_contribution:
+        $ref: '#/definitions/leaderboard.JSONB'
+      total_surplus_kg:
+        type: number
+      updated_at:
+        type: string
+      water_saved_liters:
+        type: number
+      weekly_trend:
+        $ref: '#/definitions/leaderboard.JSONB'
+    type: object
+  leaderboard.JSONB:
+    additionalProperties: true
+    type: object
+  leaderboard.Leaderboard:
+    properties:
+      entries:
+        $ref: '#/definitions/leaderboard.JSONB'
+      id:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  leftovers.CreateLeftoverClaimRequest:
+    properties:
+      message:
+        type: string
+    type: object
+  leftovers.CreateLeftoverItemRequest:
+    properties:
+      allergens:
+        items:
+          type: string
+        type: array
+      description:
+        minLength: 1
+        type: string
+      dietary_tags:
+        items:
+          type: string
+        type: array
+      dish_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      distance_km:
+        type: number
+      image:
+        type: string
+      pickup_window:
+        minLength: 1
+        type: string
+      portions:
+        type: integer
+    required:
+    - description
+    - dish_name
+    - distance_km
+    - pickup_window
+    - portions
+    type: object
+  leftovers.LeftoverClaim:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      leftover_item_id:
+        type: string
+      message:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  leftovers.LeftoverItem:
+    properties:
+      allergens:
+        items:
+          type: string
+        type: array
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      dietary_tags:
+        items:
+          type: string
+        type: array
+      dish_name:
+        type: string
+      distance_km:
+        type: number
+      id:
+        type: string
+      image:
+        type: string
+      pickup_window:
+        type: string
+      portions:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  leftovers.UpdateLeftoverItemRequest:
+    properties:
+      allergens:
+        items:
+          type: string
+        type: array
+      description:
+        minLength: 1
+        type: string
+      dietary_tags:
+        items:
+          type: string
+        type: array
+      dish_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      distance_km:
+        type: number
+      image:
+        type: string
+      pickup_window:
+        minLength: 1
+        type: string
+      portions:
+        type: integer
+      status:
+        type: string
+    type: object
+  menu.CreateRestaurantMenuItemRequest:
+    properties:
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      ingredients:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+      margin:
+        type: number
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      predicted_waste_score:
+        enum:
+        - low
+        - medium
+        - high
+        type: string
+      price:
+        type: number
+      suggestions:
+        items:
+          type: string
+        type: array
+    required:
+    - category
+    - ingredients
+    - margin
+    - name
+    - price
+    type: object
+  menu.JSONB:
+    additionalProperties: true
+    type: object
+  menu.RestaurantMenuItem:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      ingredients:
+        $ref: '#/definitions/menu.JSONB'
+      margin:
+        type: number
+      name:
+        type: string
+      predicted_waste_score:
+        type: string
+      price:
+        type: number
+      suggestions:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  menu.UpdateRestaurantMenuItemRequest:
+    properties:
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      ingredients:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+      margin:
+        type: number
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      predicted_waste_score:
+        enum:
+        - low
+        - medium
+        - high
+        type: string
+      price:
+        type: number
+      suggestions:
+        items:
+          type: string
+        type: array
+    type: object
+  nutrition.CreateNutritionDataRequest:
+    properties:
+      calcium:
+        type: number
+      calories:
+        type: number
+      carbs:
+        type: number
+      date:
+        type: string
+      fats:
+        type: number
+      fiber:
+        type: number
+      iron:
+        type: number
+      nutrition_score:
+        type: integer
+      protein:
+        type: number
+      sodium:
+        type: number
+      sugar:
+        type: number
+      vitamin_a:
+        type: number
+      vitamin_b:
+        type: number
+      vitamin_c:
+        type: number
+      vitamin_d:
+        type: number
+    type: object
+  nutrition.NutritionData:
+    properties:
+      calcium:
+        type: number
+      calories:
+        type: number
+      carbs:
+        type: number
+      created_at:
+        type: string
+      date:
+        type: string
+      fats:
+        type: number
+      fiber:
+        type: number
+      id:
+        type: string
+      iron:
+        type: number
+      nutrition_score:
+        type: integer
+      protein:
+        type: number
+      sodium:
+        type: number
+      sugar:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      vitamin_a:
+        type: number
+      vitamin_b:
+        type: number
+      vitamin_c:
+        type: number
+      vitamin_d:
+        type: number
+    type: object
+  nutrition.NutritionStats:
+    properties:
+      avg_calories:
+        type: number
+      avg_carbs:
+        type: number
+      avg_fats:
+        type: number
+      avg_nutrition_score:
+        type: integer
+      avg_protein:
+        type: number
+      total_days:
+        type: integer
+    type: object
+  nutrition.UpdateNutritionDataRequest:
+    properties:
+      calcium:
+        type: number
+      calories:
+        type: number
+      carbs:
+        type: number
+      fats:
+        type: number
+      fiber:
+        type: number
+      iron:
+        type: number
+      nutrition_score:
+        type: integer
+      protein:
+        type: number
+      sodium:
+        type: number
+      sugar:
+        type: number
+      vitamin_a:
+        type: number
+      vitamin_b:
+        type: number
+      vitamin_c:
+        type: number
+      vitamin_d:
+        type: number
+    type: object
+  offers.JSONB:
+    additionalProperties: true
+    type: object
+  offers.NGODonationOffer:
+    properties:
+      contact:
+        $ref: '#/definitions/offers.JSONB'
+      created_at:
+        type: string
+      dietary_notes:
+        type: string
+      distance_km:
+        type: number
+      donor_name:
+        type: string
+      donor_type:
+        type: string
+      expires_at:
+        type: string
+      freshness_score:
+        type: integer
+      geo_point:
+        $ref: '#/definitions/offers.JSONB'
+      id:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      items:
+        $ref: '#/definitions/offers.JSONB'
+      location_label:
+        type: string
+      match_reason:
+        type: string
+      meals_estimated:
+        type: integer
+      ngo_user_id:
+        type: string
+      offer_title:
+        type: string
+      partner_id:
+        type: string
+      pickup_window:
+        $ref: '#/definitions/offers.JSONB'
+      safety_flags:
+        items:
+          type: string
+        type: array
+      status:
+        type: string
+      updated_at:
+        type: string
+      urgency_level:
+        type: string
+      weight_kg:
+        type: number
+    type: object
+  preferences.CreatePreferencesRequest:
+    properties:
+      age_groups:
+        additionalProperties: true
+        type: object
+      allergies:
+        items:
+          type: string
+        type: array
+      avoid_excess:
+        items:
+          type: string
+        type: array
+      budget_range:
+        additionalProperties: true
+        type: object
+      cooking_frequency:
+        type: string
+      daily_calories:
+        type: integer
+      dietary_restrictions:
+        items:
+          type: string
+        type: array
+      dietary_type:
+        type: string
+      eating_schedule:
+        additionalProperties: true
+        type: object
+      health_conditions:
+        items:
+          type: string
+        type: array
+      household_id:
+        type: string
+      household_size:
+        minimum: 1
+        type: integer
+      leftover_comfort_level:
+        type: string
+      macro_goal:
+        additionalProperties: true
+        type: object
+      meal_prep_preference:
+        type: string
+      preferred_cuisines:
+        items:
+          type: string
+        type: array
+      preferred_stores:
+        items:
+          type: string
+        type: array
+      price_sensitivity:
+        type: string
+      sustainability_preference:
+        type: string
+      vitamins_focus:
+        items:
+          type: string
+        type: array
+      waste_sensitivity_level:
+        type: string
+      weekly_budget:
+        type: number
+    required:
+    - household_id
+    - household_size
+    type: object
+  preferences.CreateRestaurantPreferencesRequest:
+    properties:
+      cuisine_type:
+        maxLength: 100
+        type: string
+      donation_preferences:
+        items:
+          type: string
+        type: array
+      operating_hours:
+        type: string
+    type: object
+  preferences.FamilyPreferences:
+    properties:
+      age_groups:
+        $ref: '#/definitions/preferences.JSONB'
+      allergies:
+        items:
+          type: string
+        type: array
+      avoid_excess:
+        items:
+          type: string
+        type: array
+      budget_range:
+        $ref: '#/definitions/preferences.JSONB'
+      cooking_frequency:
+        type: string
+      created_at:
+        type: string
+      daily_calories:
+        type: integer
+      dietary_restrictions:
+        items:
+          type: string
+        type: array
+      dietary_type:
+        type: string
+      eating_schedule:
+        $ref: '#/definitions/preferences.JSONB'
+      health_conditions:
+        items:
+          type: string
+        type: array
+      household_id:
+        type: string
+      household_size:
+        type: integer
+      id:
+        type: string
+      leftover_comfort_level:
+        type: string
+      macro_goal:
+        $ref: '#/definitions/preferences.JSONB'
+      meal_prep_preference:
+        type: string
+      preferred_cuisines:
+        items:
+          type: string
+        type: array
+      preferred_stores:
+        items:
+          type: string
+        type: array
+      price_sensitivity:
+        type: string
+      sustainability_preference:
+        type: string
+      updated_at:
+        type: string
+      vitamins_focus:
+        items:
+          type: string
+        type: array
+      waste_sensitivity_level:
+        type: string
+      weekly_budget:
+        type: number
+    type: object
+  preferences.JSONB:
+    additionalProperties: true
+    type: object
+  preferences.RestaurantPreferences:
+    properties:
+      created_at:
+        type: string
+      cuisine_type:
+        type: string
+      donation_preferences:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      operating_hours:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  price_comparisons.CreatePriceComparisonRequest:
+    properties:
+      best_price:
+        additionalProperties: true
+        type: object
+      category:
+        maxLength: 100
+        type: string
+      item_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      stores:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+    required:
+    - best_price
+    - item_name
+    - stores
+    type: object
+  price_comparisons.JSONB:
+    additionalProperties: true
+    type: object
+  price_comparisons.PriceComparison:
+    properties:
+      best_price:
+        $ref: '#/definitions/price_comparisons.JSONB'
+      category:
+        type: string
+      id:
+        type: string
+      item_name:
+        type: string
+      stores:
+        $ref: '#/definitions/price_comparisons.JSONB'
+      updated_at:
+        type: string
+    type: object
+  price_comparisons.UpdatePriceComparisonRequest:
+    properties:
+      best_price:
+        additionalProperties: true
+        type: object
+      category:
+        maxLength: 100
+        type: string
+      item_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      stores:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+    type: object
+  profiles.CommunityProfile:
+    properties:
+      accepts_hot_meals:
+        type: boolean
+      allergens:
+        items:
+          type: string
+        type: array
+      avatar_url:
+        type: string
+      avoid_items:
+        items:
+          type: string
+        type: array
+      bio:
+        type: string
+      community_role:
+        type: string
+      created_at:
+        type: string
+      dietary_restrictions:
+        items:
+          type: string
+        type: array
+      distance_preference:
+        type: string
+      id:
+        type: string
+      notifications_enabled:
+        type: boolean
+      notify_on_claim:
+        type: boolean
+      notify_on_messages:
+        type: boolean
+      preferred_items:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+      visibility:
+        type: string
+    type: object
+  profiles.CreateProfileRequest:
+    properties:
+      accepts_hot_meals:
+        type: boolean
+      allergens:
+        items:
+          type: string
+        type: array
+      avatar_url:
+        type: string
+      avoid_items:
+        items:
+          type: string
+        type: array
+      bio:
+        type: string
+      community_role:
+        type: string
+      dietary_restrictions:
+        items:
+          type: string
+        type: array
+      distance_preference:
+        type: string
+      notifications_enabled:
+        type: boolean
+      notify_on_claim:
+        type: boolean
+      notify_on_messages:
+        type: boolean
+      preferred_items:
+        items:
+          type: string
+        type: array
+      username:
+        maxLength: 255
+        minLength: 3
+        type: string
+      visibility:
+        type: string
+    required:
+    - username
+    type: object
+  profiles.UpdateProfileRequest:
+    properties:
+      accepts_hot_meals:
+        type: boolean
+      allergens:
+        items:
+          type: string
+        type: array
+      avatar_url:
+        type: string
+      avoid_items:
+        items:
+          type: string
+        type: array
+      bio:
+        type: string
+      community_role:
+        type: string
+      dietary_restrictions:
+        items:
+          type: string
+        type: array
+      distance_preference:
+        type: string
+      notifications_enabled:
+        type: boolean
+      notify_on_claim:
+        type: boolean
+      notify_on_messages:
+        type: boolean
+      preferred_items:
+        items:
+          type: string
+        type: array
+      visibility:
+        type: string
+    type: object
+  staff.CreateShiftScheduleRequest:
+    properties:
+      notes:
+        type: string
+      role:
+        minLength: 1
+        type: string
+      staff:
+        minLength: 1
+        type: string
+      time:
+        minLength: 1
+        type: string
+    required:
+    - role
+    - staff
+    - time
+    type: object
+  staff.CreateStaffTaskRequest:
+    properties:
+      assignee:
+        minLength: 1
+        type: string
+      description:
+        type: string
+      priority:
+        enum:
+        - low
+        - medium
+        - high
+        type: string
+      shift:
+        minLength: 1
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - assignee
+    - shift
+    - title
+    type: object
+  staff.ShiftSchedule:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      role:
+        type: string
+      staff:
+        type: string
+      time:
+        type: string
+      user_id:
+        type: string
+    type: object
+  staff.StaffTask:
+    properties:
+      assignee:
+        type: string
+      completed:
+        type: boolean
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      priority:
+        type: string
+      shift:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: string
+    type: object
+  staff.UpdateStaffTaskRequest:
+    properties:
+      assignee:
+        minLength: 1
+        type: string
+      completed:
+        type: boolean
+      description:
+        type: string
+      priority:
+        enum:
+        - low
+        - medium
+        - high
+        type: string
+      shift:
+        minLength: 1
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+    type: object
+  surplus.AssignSurplusItemRequest:
+    properties:
+      assigned_to:
+        enum:
+        - ngo
+        - kitchen
+        type: string
+      recipient_name:
+        minLength: 1
+        type: string
+    required:
+    - assigned_to
+    - recipient_name
+    type: object
+  surplus.CreateRestaurantSurplusItemRequest:
+    properties:
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      description:
+        minLength: 1
+        type: string
+      image:
+        type: string
+      pickup_window:
+        additionalProperties: true
+        type: object
+      quantity:
+        type: number
+      storage_type:
+        enum:
+        - fresh
+        - chilled
+        - frozen
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      unit:
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - category
+    - description
+    - pickup_window
+    - quantity
+    - storage_type
+    - title
+    - unit
+    type: object
+  surplus.CreateSurplusCommentRequest:
+    properties:
+      message:
+        minLength: 1
+        type: string
+    required:
+    - message
+    type: object
+  surplus.CreateSurplusPostRequest:
+    properties:
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      description:
+        minLength: 1
+        type: string
+      distance_km:
+        type: number
+      expires_at:
+        type: string
+      image:
+        type: string
+      pickup_location:
+        minLength: 1
+        type: string
+      pickup_window:
+        additionalProperties: true
+        type: object
+      quantity:
+        type: number
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      unit:
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - category
+    - description
+    - expires_at
+    - pickup_location
+    - pickup_window
+    - quantity
+    - title
+    - unit
+    type: object
+  surplus.CreateSurplusRequestRequest:
+    properties:
+      message:
+        type: string
+    type: object
+  surplus.RestaurantSurplusItem:
+    properties:
+      assigned_to:
+        type: string
+      category:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      pickup_window:
+        $ref: '#/definitions/foodlink_backend_features_restaurant_surplus.JSONB'
+      quantity:
+        type: number
+      recipient_name:
+        type: string
+      status:
+        type: string
+      storage_type:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      unit:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  surplus.SurplusComment:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      post_id:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  surplus.SurplusPost:
+    properties:
+      avatar_url:
+        type: string
+      category:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      distance_km:
+        type: number
+      expires_at:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      pickup_location:
+        type: string
+      pickup_window:
+        $ref: '#/definitions/foodlink_backend_features_community_surplus.JSONB'
+      quantity:
+        type: number
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      unit:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  surplus.SurplusRequest:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      post_id:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  surplus.UpdateRestaurantSurplusItemRequest:
+    properties:
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      description:
+        minLength: 1
+        type: string
+      image:
+        type: string
+      pickup_window:
+        additionalProperties: true
+        type: object
+      quantity:
+        type: number
+      status:
+        type: string
+      storage_type:
+        enum:
+        - fresh
+        - chilled
+        - frozen
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      unit:
+        maxLength: 50
+        minLength: 1
+        type: string
+    type: object
+  surplus.UpdateSurplusPostRequest:
+    properties:
+      category:
+        maxLength: 100
+        minLength: 1
+        type: string
+      description:
+        minLength: 1
+        type: string
+      image:
+        type: string
+      pickup_location:
+        minLength: 1
+        type: string
+      pickup_window:
+        additionalProperties: true
+        type: object
+      quantity:
+        type: number
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      unit:
+        maxLength: 50
+        minLength: 1
+        type: string
+    type: object
+  surplus.UpdateSurplusRequestRequest:
+    properties:
+      status:
+        enum:
+        - pending
+        - approved
+        - declined
+        type: string
+    required:
+    - status
+    type: object
+  xp.AddXPRequest:
+    properties:
+      amount:
+        type: integer
+      reason:
+        type: string
+    required:
+    - amount
+    type: object
+  xp.LeaderboardEntry:
+    properties:
+      level:
+        type: integer
+      name:
+        type: string
+      rank:
+        type: integer
+      total_xp:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  xp.UserXP:
+    properties:
+      current_level_xp:
+        type: integer
+      id:
+        type: string
+      level:
+        type: integer
+      next_level_xp:
+        type: integer
+      total_xp:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://www.example.com/support
+  description: A Go backend API server for Foodlink application
+  license:
+    name: MIT
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Foodlink Backend API
+  version: "1.0"
+paths:
+  /api/v1/:
+    get:
+      consumes:
+      - application/json
+      description: Welcome message for API v1
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APIResponse'
+      summary: API v1 welcome
+      tags:
+      - api
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and get access token
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Login user
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout user (token invalidation handled client-side)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get authenticated user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh the access token using refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: Registration request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Register a new user
+      tags:
+      - auth
+  /badges:
+    get:
+      consumes:
+      - application/json
+      description: Get all badges for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/badges.Badge'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get user badges
+      tags:
+      - badges
+  /badges/available:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all available badges
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/badges.AvailableBadge'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get available badges
+      tags:
+      - badges
+  /badges/unlock:
+    post:
+      consumes:
+      - application/json
+      description: Unlock a badge for the authenticated user (system endpoint)
+      parameters:
+      - description: Badge unlock data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/badges.UnlockBadgeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/badges.Badge'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Unlock badge
+      tags:
+      - badges
+  /community/impact:
+    get:
+      consumes:
+      - application/json
+      description: Get overall community impact statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/leaderboard.Impact'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get community impact
+      tags:
+      - community-impact
+  /community/impact/personal:
+    get:
+      consumes:
+      - application/json
+      description: Get personal contribution statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/leaderboard.Impact'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get personal impact
+      tags:
+      - community-impact
+  /community/kitchen-events:
+    get:
+      consumes:
+      - application/json
+      description: Get all community kitchen events, optionally filtered by status
+      parameters:
+      - description: Filter by status (upcoming, in-progress, completed)
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/kitchen_events.KitchenEvent'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List kitchen events
+      tags:
+      - community-kitchen-events
+    post:
+      consumes:
+      - application/json
+      description: Create a new community kitchen event
+      parameters:
+      - description: Kitchen event data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kitchen_events.CreateKitchenEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/kitchen_events.KitchenEvent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create kitchen event
+      tags:
+      - community-kitchen-events
+  /community/kitchen-events/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific kitchen event
+      parameters:
+      - description: Kitchen Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kitchen_events.KitchenEvent'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get kitchen event by ID
+      tags:
+      - community-kitchen-events
+    put:
+      consumes:
+      - application/json
+      description: Update an existing kitchen event
+      parameters:
+      - description: Kitchen Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Kitchen event data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kitchen_events.UpdateKitchenEventRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kitchen_events.KitchenEvent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update kitchen event
+      tags:
+      - community-kitchen-events
+  /community/kitchen-events/{id}/volunteer:
+    post:
+      consumes:
+      - application/json
+      description: Sign up as a volunteer for a kitchen event
+      parameters:
+      - description: Kitchen Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Volunteer data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kitchen_events.VolunteerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kitchen_events.KitchenEvent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Volunteer for event
+      tags:
+      - community-kitchen-events
+  /community/leaderboard:
+    get:
+      consumes:
+      - application/json
+      description: Get community leaderboard by type
+      parameters:
+      - description: Leaderboard type (top-sharers, zero-waste, volunteer-stars, building-impact,
+          weekly-xp)
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/leaderboard.Leaderboard'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get leaderboard
+      tags:
+      - community-leaderboard
+  /community/leftovers:
+    get:
+      consumes:
+      - application/json
+      description: Get all leftover items, optionally filtered by status
+      parameters:
+      - description: Filter by status (available, claimed)
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/leftovers.LeftoverItem'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List leftover items
+      tags:
+      - community-leftovers
+    post:
+      consumes:
+      - application/json
+      description: Create a new leftover item post
+      parameters:
+      - description: Leftover item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/leftovers.CreateLeftoverItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/leftovers.LeftoverItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create leftover item
+      tags:
+      - community-leftovers
+  /community/leftovers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a leftover item
+      parameters:
+      - description: Leftover Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Delete leftover item
+      tags:
+      - community-leftovers
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific leftover item
+      parameters:
+      - description: Leftover Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/leftovers.LeftoverItem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get leftover item by ID
+      tags:
+      - community-leftovers
+    put:
+      consumes:
+      - application/json
+      description: Update an existing leftover item
+      parameters:
+      - description: Leftover Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Leftover item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/leftovers.UpdateLeftoverItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/leftovers.LeftoverItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update leftover item
+      tags:
+      - community-leftovers
+  /community/leftovers/{id}/claim:
+    post:
+      consumes:
+      - application/json
+      description: Claim a leftover item
+      parameters:
+      - description: Leftover Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Claim data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/leftovers.CreateLeftoverClaimRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/leftovers.LeftoverClaim'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Claim leftover
+      tags:
+      - community-leftovers
+  /community/leftovers/{id}/claims:
+    get:
+      consumes:
+      - application/json
+      description: Get all claims for a leftover item
+      parameters:
+      - description: Leftover Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/leftovers.LeftoverClaim'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get claims
+      tags:
+      - community-leftovers
+  /community/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get the authenticated user's community profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profiles.CommunityProfile'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get user's community profile
+      tags:
+      - community-profiles
+    post:
+      consumes:
+      - application/json
+      description: Create a new community profile for the authenticated user
+      parameters:
+      - description: Profile data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profiles.CreateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/profiles.CommunityProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create community profile
+      tags:
+      - community-profiles
+    put:
+      consumes:
+      - application/json
+      description: Update the authenticated user's community profile
+      parameters:
+      - description: Profile data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profiles.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profiles.CommunityProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update community profile
+      tags:
+      - community-profiles
+  /community/profile/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Get a community profile by username
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profiles.CommunityProfile'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get profile by username
+      tags:
+      - community-profiles
+  /community/surplus:
+    get:
+      consumes:
+      - application/json
+      description: Get all community surplus posts, optionally filtered by status
+      parameters:
+      - description: Filter by status (available, claimed, expired)
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/surplus.SurplusPost'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List surplus posts
+      tags:
+      - community-surplus
+    post:
+      consumes:
+      - application/json
+      description: Create a new community surplus post
+      parameters:
+      - description: Surplus post data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/surplus.CreateSurplusPostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/surplus.SurplusPost'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create surplus post
+      tags:
+      - community-surplus
+  /community/surplus/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a surplus post
+      parameters:
+      - description: Surplus Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Delete surplus post
+      tags:
+      - community-surplus
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific surplus post
+      parameters:
+      - description: Surplus Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/surplus.SurplusPost'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get surplus post by ID
+      tags:
+      - community-surplus
+    put:
+      consumes:
+      - application/json
+      description: Update an existing surplus post
+      parameters:
+      - description: Surplus Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Surplus post data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/surplus.UpdateSurplusPostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/surplus.SurplusPost'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update surplus post
+      tags:
+      - community-surplus
+  /community/surplus/{id}/comments:
+    get:
+      consumes:
+      - application/json
+      description: Get all comments for a surplus post
+      parameters:
+      - description: Surplus Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/surplus.SurplusComment'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get comments
+      tags:
+      - community-surplus
+    post:
+      consumes:
+      - application/json
+      description: Add a comment to a surplus post
+      parameters:
+      - description: Surplus Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Comment data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/surplus.CreateSurplusCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/surplus.SurplusComment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Add comment
+      tags:
+      - community-surplus
+  /community/surplus/{id}/request:
+    post:
+      consumes:
+      - application/json
+      description: Create a request for a surplus post
+      parameters:
+      - description: Surplus Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/surplus.CreateSurplusRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/surplus.SurplusRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Request surplus
+      tags:
+      - community-surplus
+  /community/surplus/{id}/requests:
+    get:
+      consumes:
+      - application/json
+      description: Get all requests for a surplus post (post owner only)
+      parameters:
+      - description: Surplus Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/surplus.SurplusRequest'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get surplus requests
+      tags:
+      - community-surplus
+  /community/surplus/{id}/requests/{requestId}:
+    put:
+      consumes:
+      - application/json
+      description: Approve or decline a surplus request (post owner only)
+      parameters:
+      - description: Surplus Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        name: requestId
+        required: true
+        type: string
+      - description: Request status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/surplus.UpdateSurplusRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/surplus.SurplusRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Approve/decline request
+      tags:
+      - community-surplus
+  /consumption:
+    get:
+      consumes:
+      - application/json
+      description: Get all consumption logs for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/consumption.ConsumptionLog'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get consumption logs
+      tags:
+      - consumption
+    post:
+      consumes:
+      - application/json
+      description: Create a new consumption log entry
+      parameters:
+      - description: Consumption log data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/consumption.CreateConsumptionLogRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/consumption.ConsumptionLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Log consumption
+      tags:
+      - consumption
+  /consumption/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a consumption log entry
+      parameters:
+      - description: Consumption Log ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Delete consumption log
+      tags:
+      - consumption
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific consumption log
+      parameters:
+      - description: Consumption Log ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/consumption.ConsumptionLog'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get consumption log by ID
+      tags:
+      - consumption
+    put:
+      consumes:
+      - application/json
+      description: Update an existing consumption log
+      parameters:
+      - description: Consumption Log ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Consumption log data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/consumption.UpdateConsumptionLogRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/consumption.ConsumptionLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update consumption log
+      tags:
+      - consumption
+  /consumption/stats:
+    get:
+      consumes:
+      - application/json
+      description: Get consumption statistics for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/consumption.ConsumptionStats'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get consumption statistics
+      tags:
+      - consumption
+  /food-items:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all food items (reference data)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/food_items.FoodItem'
+            type: array
+      summary: List all food items
+      tags:
+      - food-items
+    post:
+      consumes:
+      - application/json
+      description: Create a new food item (admin only)
+      parameters:
+      - description: Food item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/food_items.CreateFoodItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/food_items.FoodItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Create food item
+      tags:
+      - food-items
+  /food-items/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a food item (admin only)
+      parameters:
+      - description: Food Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Delete food item
+      tags:
+      - food-items
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific food item
+      parameters:
+      - description: Food Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/food_items.FoodItem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Get food item by ID
+      tags:
+      - food-items
+    put:
+      consumes:
+      - application/json
+      description: Update an existing food item (admin only)
+      parameters:
+      - description: Food Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Food item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/food_items.UpdateFoodItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/food_items.FoodItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Update food item
+      tags:
+      - food-items
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check if the server is running and database connectivity
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.HealthResponse'
+      summary: Health check
+      tags:
+      - health
+  /inventory:
+    get:
+      consumes:
+      - application/json
+      description: Get all inventory items for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/inventory.InventoryItem'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get user inventory
+      tags:
+      - inventory
+    post:
+      consumes:
+      - application/json
+      description: Add a new item to user's inventory
+      parameters:
+      - description: Inventory item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/inventory.CreateInventoryItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/inventory.InventoryItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Add inventory item
+      tags:
+      - inventory
+  /inventory/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an inventory item
+      parameters:
+      - description: Inventory Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Delete inventory item
+      tags:
+      - inventory
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific inventory item
+      parameters:
+      - description: Inventory Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/inventory.InventoryItem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get inventory item by ID
+      tags:
+      - inventory
+    put:
+      consumes:
+      - application/json
+      description: Update an existing inventory item
+      parameters:
+      - description: Inventory Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Inventory item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/inventory.UpdateInventoryItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/inventory.InventoryItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update inventory item
+      tags:
+      - inventory
+  /inventory/expired:
+    get:
+      consumes:
+      - application/json
+      description: Get all expired inventory items
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/inventory.InventoryItem'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get expired items
+      tags:
+      - inventory
+  /inventory/expiring:
+    get:
+      consumes:
+      - application/json
+      description: Get inventory items expiring within specified days (default 7)
+      parameters:
+      - description: 'Number of days (default: 7)'
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/inventory.InventoryItem'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get expiring items
+      tags:
+      - inventory
+  /ngo/capacity:
+    get:
+      consumes:
+      - application/json
+      description: Get NGO capacity settings for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/capacity.NGOCapacitySettings'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get capacity settings
+      tags:
+      - ngo-capacity
+    post:
+      consumes:
+      - application/json
+      description: Create or update NGO capacity settings
+      parameters:
+      - description: Capacity settings data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/capacity.CreateNGOCapacitySettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/capacity.NGOCapacitySettings'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/capacity.NGOCapacitySettings'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create or update capacity settings
+      tags:
+      - ngo-capacity
+  /ngo/offers:
+    get:
+      consumes:
+      - application/json
+      description: Get all donation offers for the authenticated NGO
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/offers.NGODonationOffer'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List donation offers
+      tags:
+      - ngo-offers
+  /ngo/offers/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific donation offer
+      parameters:
+      - description: Offer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/offers.NGODonationOffer'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get offer details
+      tags:
+      - ngo-offers
+  /ngo/offers/{id}/accept:
+    put:
+      consumes:
+      - application/json
+      description: Accept a donation offer
+      parameters:
+      - description: Offer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/offers.NGODonationOffer'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Accept offer
+      tags:
+      - ngo-offers
+  /ngo/offers/{id}/decline:
+    put:
+      consumes:
+      - application/json
+      description: Decline a donation offer
+      parameters:
+      - description: Offer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/offers.NGODonationOffer'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Decline offer
+      tags:
+      - ngo-offers
+  /nutrition:
+    get:
+      consumes:
+      - application/json
+      description: Get nutrition data for the authenticated user within a date range
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/nutrition.NutritionData'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get nutrition data
+      tags:
+      - nutrition
+    post:
+      consumes:
+      - application/json
+      description: Create a new nutrition data entry
+      parameters:
+      - description: Nutrition data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/nutrition.CreateNutritionDataRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/nutrition.NutritionData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Log nutrition data
+      tags:
+      - nutrition
+  /nutrition/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific nutrition data entry
+      parameters:
+      - description: Nutrition Data ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/nutrition.NutritionData'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get nutrition data by ID
+      tags:
+      - nutrition
+    put:
+      consumes:
+      - application/json
+      description: Update an existing nutrition data entry
+      parameters:
+      - description: Nutrition Data ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Nutrition data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/nutrition.UpdateNutritionDataRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/nutrition.NutritionData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update nutrition data
+      tags:
+      - nutrition
+  /nutrition/stats:
+    get:
+      consumes:
+      - application/json
+      description: Get nutrition statistics for the authenticated user
+      parameters:
+      - description: 'Number of days (default: 30)'
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/nutrition.NutritionStats'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get nutrition statistics
+      tags:
+      - nutrition
+  /nutrition/today:
+    get:
+      consumes:
+      - application/json
+      description: Get today's nutrition data for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/nutrition.NutritionData'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get today's nutrition
+      tags:
+      - nutrition
+  /preferences:
+    get:
+      consumes:
+      - application/json
+      description: Get family preferences for the authenticated user's household
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/preferences.FamilyPreferences'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get family preferences
+      tags:
+      - preferences
+    post:
+      consumes:
+      - application/json
+      description: Create or update family preferences
+      parameters:
+      - description: Preferences data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/preferences.CreatePreferencesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/preferences.FamilyPreferences'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/preferences.FamilyPreferences'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create or update preferences
+      tags:
+      - preferences
+    put:
+      consumes:
+      - application/json
+      description: Create or update family preferences
+      parameters:
+      - description: Preferences data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/preferences.CreatePreferencesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/preferences.FamilyPreferences'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/preferences.FamilyPreferences'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create or update preferences
+      tags:
+      - preferences
+  /price-comparisons:
+    get:
+      consumes:
+      - application/json
+      description: Get all price comparisons
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/price_comparisons.PriceComparison'
+            type: array
+      summary: Get price comparisons
+      tags:
+      - price-comparisons
+    post:
+      consumes:
+      - application/json
+      description: Create a new price comparison
+      parameters:
+      - description: Price comparison data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/price_comparisons.CreatePriceComparisonRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/price_comparisons.PriceComparison'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Create price comparison
+      tags:
+      - price-comparisons
+  /price-comparisons/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific price comparison
+      parameters:
+      - description: Price Comparison ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/price_comparisons.PriceComparison'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Get price comparison by ID
+      tags:
+      - price-comparisons
+    put:
+      consumes:
+      - application/json
+      description: Update an existing price comparison
+      parameters:
+      - description: Price Comparison ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Price comparison data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/price_comparisons.UpdatePriceComparisonRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/price_comparisons.PriceComparison'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Update price comparison
+      tags:
+      - price-comparisons
+  /restaurant/donations:
+    get:
+      consumes:
+      - application/json
+      description: Get all donation logs for the authenticated restaurant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/donations.DonationLog'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List donations
+      tags:
+      - restaurant-donations
+    post:
+      consumes:
+      - application/json
+      description: Create a new donation log entry
+      parameters:
+      - description: Donation log data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/donations.CreateDonationLogRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/donations.DonationLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Log donation
+      tags:
+      - restaurant-donations
+  /restaurant/impact:
+    get:
+      consumes:
+      - application/json
+      description: Get impact metrics for the authenticated restaurant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/donations.ImpactMetrics'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get impact metrics
+      tags:
+      - restaurant-impact
+  /restaurant/inventory:
+    get:
+      consumes:
+      - application/json
+      description: Get all inventory items for the authenticated restaurant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/inventory.RestaurantInventoryItem'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List restaurant inventory
+      tags:
+      - restaurant-inventory
+    post:
+      consumes:
+      - application/json
+      description: Add a new item to restaurant inventory
+      parameters:
+      - description: Inventory item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/inventory.CreateRestaurantInventoryItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/inventory.RestaurantInventoryItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Add inventory item
+      tags:
+      - restaurant-inventory
+  /restaurant/inventory/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an inventory item
+      parameters:
+      - description: Inventory Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Delete inventory item
+      tags:
+      - restaurant-inventory
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific inventory item
+      parameters:
+      - description: Inventory Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/inventory.RestaurantInventoryItem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get inventory item by ID
+      tags:
+      - restaurant-inventory
+    put:
+      consumes:
+      - application/json
+      description: Update an existing inventory item
+      parameters:
+      - description: Inventory Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Inventory item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/inventory.UpdateRestaurantInventoryItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/inventory.RestaurantInventoryItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update inventory item
+      tags:
+      - restaurant-inventory
+  /restaurant/inventory/expiring:
+    get:
+      consumes:
+      - application/json
+      description: Get inventory items expiring within specified days (default 7)
+      parameters:
+      - description: 'Number of days (default: 7)'
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/inventory.RestaurantInventoryItem'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get expiring items
+      tags:
+      - restaurant-inventory
+  /restaurant/menu:
+    get:
+      consumes:
+      - application/json
+      description: Get all menu items for the authenticated restaurant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/menu.RestaurantMenuItem'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List menu items
+      tags:
+      - restaurant-menu
+    post:
+      consumes:
+      - application/json
+      description: Add a new item to restaurant menu
+      parameters:
+      - description: Menu item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/menu.CreateRestaurantMenuItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/menu.RestaurantMenuItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Add menu item
+      tags:
+      - restaurant-menu
+  /restaurant/menu/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a menu item
+      parameters:
+      - description: Menu Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Delete menu item
+      tags:
+      - restaurant-menu
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific menu item
+      parameters:
+      - description: Menu Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/menu.RestaurantMenuItem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get menu item by ID
+      tags:
+      - restaurant-menu
+    put:
+      consumes:
+      - application/json
+      description: Update an existing menu item
+      parameters:
+      - description: Menu Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Menu item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/menu.UpdateRestaurantMenuItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/menu.RestaurantMenuItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update menu item
+      tags:
+      - restaurant-menu
+  /restaurant/preferences:
+    get:
+      consumes:
+      - application/json
+      description: Get restaurant preferences for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/preferences.RestaurantPreferences'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get preferences
+      tags:
+      - restaurant-preferences
+    post:
+      consumes:
+      - application/json
+      description: Create or update restaurant preferences
+      parameters:
+      - description: Preferences data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/preferences.CreateRestaurantPreferencesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/preferences.RestaurantPreferences'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/preferences.RestaurantPreferences'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create or update preferences
+      tags:
+      - restaurant-preferences
+  /restaurant/shifts:
+    get:
+      consumes:
+      - application/json
+      description: Get all shift schedules for the authenticated restaurant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/staff.ShiftSchedule'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List shifts
+      tags:
+      - restaurant-staff
+    post:
+      consumes:
+      - application/json
+      description: Create a new shift schedule
+      parameters:
+      - description: Shift data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/staff.CreateShiftScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/staff.ShiftSchedule'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create shift
+      tags:
+      - restaurant-staff
+  /restaurant/surplus:
+    get:
+      consumes:
+      - application/json
+      description: Get all surplus items for the authenticated restaurant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/surplus.RestaurantSurplusItem'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List surplus items
+      tags:
+      - restaurant-surplus
+    post:
+      consumes:
+      - application/json
+      description: Create a new surplus item
+      parameters:
+      - description: Surplus item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/surplus.CreateRestaurantSurplusItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/surplus.RestaurantSurplusItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create surplus item
+      tags:
+      - restaurant-surplus
+  /restaurant/surplus/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing surplus item
+      parameters:
+      - description: Surplus Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Surplus item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/surplus.UpdateRestaurantSurplusItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/surplus.RestaurantSurplusItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update surplus item
+      tags:
+      - restaurant-surplus
+  /restaurant/surplus/{id}/assign:
+    put:
+      consumes:
+      - application/json
+      description: Assign a surplus item to NGO or community kitchen
+      parameters:
+      - description: Surplus Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignment data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/surplus.AssignSurplusItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/surplus.RestaurantSurplusItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Assign surplus item
+      tags:
+      - restaurant-surplus
+  /restaurant/tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get all staff tasks for the authenticated restaurant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/staff.StaffTask'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: List tasks
+      tags:
+      - restaurant-staff
+    post:
+      consumes:
+      - application/json
+      description: Create a new staff task
+      parameters:
+      - description: Task data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/staff.CreateStaffTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/staff.StaffTask'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Create task
+      tags:
+      - restaurant-staff
+  /restaurant/tasks/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing staff task
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Task data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/staff.UpdateStaffTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/staff.StaffTask'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Update task
+      tags:
+      - restaurant-staff
+  /xp:
+    get:
+      consumes:
+      - application/json
+      description: Get XP and level information for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/xp.UserXP'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get user XP
+      tags:
+      - xp
+  /xp/add:
+    post:
+      consumes:
+      - application/json
+      description: Add XP to the authenticated user (system endpoint)
+      parameters:
+      - description: XP data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/xp.AddXPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/xp.UserXP'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Add XP
+      tags:
+      - xp
+  /xp/leaderboard:
+    get:
+      consumes:
+      - application/json
+      description: Get XP leaderboard
+      parameters:
+      - description: 'Number of entries (default: 10, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/xp.LeaderboardEntry'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+      - BearerAuth: []
+      summary: Get leaderboard
+      tags:
+      - xp
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
