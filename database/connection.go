@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"time"
 
 	"foodlink_backend/config"
 	_ "github.com/lib/pq"
@@ -25,9 +24,18 @@ func Init(cfg *config.Config) error {
 	}
 
 	// Set connection pool settings
-	DB.SetMaxOpenConns(25)
-	DB.SetMaxIdleConns(5)
-	DB.SetConnMaxLifetime(5 * time.Minute)
+	if cfg.DBMaxPoolSize > 0 {
+		DB.SetMaxOpenConns(cfg.DBMaxPoolSize)
+	}
+	if cfg.DBMaxIdleConns > 0 {
+		DB.SetMaxIdleConns(cfg.DBMaxIdleConns)
+	}
+	if cfg.DBConnMaxLifetime > 0 {
+		DB.SetConnMaxLifetime(cfg.DBConnMaxLifetime)
+	}
+	if cfg.DBIdleTimeout > 0 {
+		DB.SetConnMaxIdleTime(cfg.DBIdleTimeout)
+	}
 
 	// Test the connection
 	if err := DB.Ping(); err != nil {

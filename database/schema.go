@@ -14,6 +14,13 @@ func InitSchema() error {
 		return fmt.Errorf("database connection is not initialized")
 	}
 
+	// Avoid re-running schema.sql on every server start.
+	// The PostgreSQL schema file creates triggers without IF NOT EXISTS, so repeated runs would error.
+	if exists, err := CheckTableExists("users"); err == nil && exists {
+		log.Println("Database schema already initialized (users table exists); skipping schema.sql execution")
+		return nil
+	}
+
 	// Read schema.sql file
 	schemaPath := filepath.Join("schema.sql")
 	schemaSQL, err := os.ReadFile(schemaPath)

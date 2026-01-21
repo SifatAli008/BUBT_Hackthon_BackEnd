@@ -3,6 +3,8 @@ package utils
 import (
 	"errors"
 	"foodlink_backend/config"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -78,7 +80,29 @@ func ValidateToken(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-// ParseExpiry parses expiry duration from string (e.g., "24h", "1h30m")
+// ParseExpiry parses expiry duration from string.
+// Supports Go durations like "24h", "1h30m" and also day/week shorthands like "1d", "2d", "1w".
 func ParseExpiry(expiryStr string) (time.Duration, error) {
-	return time.ParseDuration(expiryStr)
+	s := strings.TrimSpace(expiryStr)
+	if s == "" {
+		return 0, errors.New("empty expiry")
+	}
+
+	// Support "Nd" / "Nw" (Go's time.ParseDuration does not support days/weeks)
+	if strings.HasSuffix(s, "d") || strings.HasSuffix(s, "w") {
+		unit := s[len(s)-1:]
+		numStr := strings.TrimSpace(s[:len(s)-1])
+		n, err := strconv.ParseFloat(numStr, 64)
+		if err == nil {
+			switch unit {
+			case "d":
+				return time.Duration(n * float64(24*time.Hour)), nil
+			case "w":
+				return time.Duration(n * float64(7*24*time.Hour)), nil
+			}
+		}
+		// Fall through to the standard parser on parse failure
+	}
+
+	return time.ParseDuration(s)
 }
