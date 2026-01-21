@@ -13,6 +13,7 @@ import (
 	"foodlink_backend/features/consumption"
 	"foodlink_backend/features/food_items"
 	"foodlink_backend/features/inventory"
+	"foodlink_backend/features/meal_plans"
 	ngo_capacity "foodlink_backend/features/ngo/capacity"
 	ngo_feedback "foodlink_backend/features/ngo/feedback"
 	ngo_history "foodlink_backend/features/ngo/history"
@@ -22,6 +23,7 @@ import (
 	"foodlink_backend/features/nutrition"
 	"foodlink_backend/features/preferences"
 	"foodlink_backend/features/price_comparisons"
+	"foodlink_backend/features/shopping_list"
 	restaurant_donations "foodlink_backend/features/restaurant/donations"
 	restaurant_inventory "foodlink_backend/features/restaurant/inventory"
 	restaurant_menu "foodlink_backend/features/restaurant/menu"
@@ -36,6 +38,20 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+func mountWithOptionalSlash(mux *http.ServeMux, prefix string, handler http.Handler) {
+	strip := http.StripPrefix(prefix, handler)
+
+	// Match subtree requests: /prefix/...
+	mux.Handle(prefix+"/", strip)
+
+	// Match exact prefix: /prefix
+	mux.Handle(prefix, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Make StripPrefix produce "/" for subrouters that expect root.
+		r.URL.Path = prefix + "/"
+		strip.ServeHTTP(w, r)
+	}))
+}
+
 func SetupRoutes(cfg *config.Config) http.Handler {
 	mux := http.NewServeMux()
 
@@ -49,73 +65,85 @@ func SetupRoutes(cfg *config.Config) http.Handler {
 	authService := auth.NewService(cfg)
 	authHandler := auth.NewHandler(authService)
 	authRoutes := auth.SetupRoutes(authService, authHandler)
-	mux.Handle("/api/v1/auth/", http.StripPrefix("/api/v1/auth", authRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/auth", authRoutes)
 
 	// Food Items routes (public, but admin-only for create/update/delete)
 	foodItemsService := food_items.NewService()
 	foodItemsHandler := food_items.NewHandler(foodItemsService)
 	foodItemsRoutes := food_items.SetupRoutes(foodItemsHandler)
-	mux.Handle("/api/v1/food-items/", http.StripPrefix("/api/v1/food-items", foodItemsRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/food-items", foodItemsRoutes)
 
 	// Inventory routes (protected)
 	inventoryService := inventory.NewService()
 	inventoryHandler := inventory.NewHandler(inventoryService)
 	inventoryRoutes := inventory.SetupRoutes(inventoryService, inventoryHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/inventory/", http.StripPrefix("/api/v1/inventory", inventoryRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/inventory", inventoryRoutes)
+
+	// Shopping List routes (protected)
+	shoppingListService := shopping_list.NewService()
+	shoppingListHandler := shopping_list.NewHandler(shoppingListService)
+	shoppingListRoutes := shopping_list.SetupRoutes(shoppingListService, shoppingListHandler, auth.AuthMiddleware(authService))
+	mountWithOptionalSlash(mux, "/api/v1/shopping-list", shoppingListRoutes)
 
 	// Consumption routes (protected)
 	consumptionService := consumption.NewService()
 	consumptionHandler := consumption.NewHandler(consumptionService)
 	consumptionRoutes := consumption.SetupRoutes(consumptionService, consumptionHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/consumption/", http.StripPrefix("/api/v1/consumption", consumptionRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/consumption", consumptionRoutes)
+
+	// Meal Plans routes (protected)
+	mealPlansService := meal_plans.NewService()
+	mealPlansHandler := meal_plans.NewHandler(mealPlansService)
+	mealPlansRoutes := meal_plans.SetupRoutes(mealPlansService, mealPlansHandler, auth.AuthMiddleware(authService))
+	mountWithOptionalSlash(mux, "/api/v1/meal-plans", mealPlansRoutes)
 
 	// Preferences routes (protected)
 	preferencesService := preferences.NewService()
 	preferencesHandler := preferences.NewHandler(preferencesService)
 	preferencesRoutes := preferences.SetupRoutes(preferencesService, preferencesHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/preferences/", http.StripPrefix("/api/v1/preferences", preferencesRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/preferences", preferencesRoutes)
 
 	// Nutrition routes (protected)
 	nutritionService := nutrition.NewService()
 	nutritionHandler := nutrition.NewHandler(nutritionService)
 	nutritionRoutes := nutrition.SetupRoutes(nutritionService, nutritionHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/nutrition/", http.StripPrefix("/api/v1/nutrition", nutritionRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/nutrition", nutritionRoutes)
 
 	// Price Comparisons routes (public)
 	priceComparisonsService := price_comparisons.NewService()
 	priceComparisonsHandler := price_comparisons.NewHandler(priceComparisonsService)
 	priceComparisonsRoutes := price_comparisons.SetupRoutes(priceComparisonsHandler)
-	mux.Handle("/api/v1/price-comparisons/", http.StripPrefix("/api/v1/price-comparisons", priceComparisonsRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/price-comparisons", priceComparisonsRoutes)
 
 	// Badges routes (protected)
 	badgesService := badges.NewService()
 	badgesHandler := badges.NewHandler(badgesService)
 	badgesRoutes := badges.SetupRoutes(badgesService, badgesHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/badges/", http.StripPrefix("/api/v1/badges", badgesRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/badges", badgesRoutes)
 
 	// XP routes (protected)
 	xpService := xp.NewService()
 	xpHandler := xp.NewHandler(xpService)
 	xpRoutes := xp.SetupRoutes(xpService, xpHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/xp/", http.StripPrefix("/api/v1/xp", xpRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/xp", xpRoutes)
 
 	// Community Surplus routes (protected)
 	surplusService := surplus.NewService()
 	surplusHandler := surplus.NewHandler(surplusService)
 	surplusRoutes := surplus.SetupRoutes(surplusService, surplusHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/community/surplus/", http.StripPrefix("/api/v1/community/surplus", surplusRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/community/surplus", surplusRoutes)
 
 	// Community Leftovers routes (protected)
 	leftoversService := leftovers.NewService()
 	leftoversHandler := leftovers.NewHandler(leftoversService)
 	leftoversRoutes := leftovers.SetupRoutes(leftoversService, leftoversHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/community/leftovers/", http.StripPrefix("/api/v1/community/leftovers", leftoversRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/community/leftovers", leftoversRoutes)
 
 	// Community Kitchen Events routes (protected)
 	kitchenEventsService := kitchen_events.NewService()
 	kitchenEventsHandler := kitchen_events.NewHandler(kitchenEventsService)
 	kitchenEventsRoutes := kitchen_events.SetupRoutes(kitchenEventsService, kitchenEventsHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/community/kitchen-events/", http.StripPrefix("/api/v1/community/kitchen-events", kitchenEventsRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/community/kitchen-events", kitchenEventsRoutes)
 
 	// Community Leaderboard & Impact routes (protected)
 	leaderboardService := leaderboard.NewService()
@@ -128,31 +156,31 @@ func SetupRoutes(cfg *config.Config) http.Handler {
 	profilesService := profiles.NewService()
 	profilesHandler := profiles.NewHandler(profilesService)
 	profilesRoutes := profiles.SetupRoutes(profilesService, profilesHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/community/profile/", http.StripPrefix("/api/v1/community/profile", profilesRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/community/profile", profilesRoutes)
 
 	// Restaurant Inventory routes (protected)
 	restaurantInventoryService := restaurant_inventory.NewService()
 	restaurantInventoryHandler := restaurant_inventory.NewHandler(restaurantInventoryService)
 	restaurantInventoryRoutes := restaurant_inventory.SetupRoutes(restaurantInventoryService, restaurantInventoryHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/restaurant/inventory/", http.StripPrefix("/api/v1/restaurant/inventory", restaurantInventoryRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/restaurant/inventory", restaurantInventoryRoutes)
 
 	// Restaurant Menu routes (protected)
 	restaurantMenuService := restaurant_menu.NewService()
 	restaurantMenuHandler := restaurant_menu.NewHandler(restaurantMenuService)
 	restaurantMenuRoutes := restaurant_menu.SetupRoutes(restaurantMenuService, restaurantMenuHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/restaurant/menu/", http.StripPrefix("/api/v1/restaurant/menu", restaurantMenuRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/restaurant/menu", restaurantMenuRoutes)
 
 	// Restaurant Surplus routes (protected)
 	restaurantSurplusService := restaurant_surplus.NewService()
 	restaurantSurplusHandler := restaurant_surplus.NewHandler(restaurantSurplusService)
 	restaurantSurplusRoutes := restaurant_surplus.SetupRoutes(restaurantSurplusService, restaurantSurplusHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/restaurant/surplus/", http.StripPrefix("/api/v1/restaurant/surplus", restaurantSurplusRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/restaurant/surplus", restaurantSurplusRoutes)
 
 	// Restaurant Donations & Impact routes (protected)
 	restaurantDonationsService := restaurant_donations.NewService()
 	restaurantDonationsHandler := restaurant_donations.NewHandler(restaurantDonationsService)
 	restaurantDonationsRoutes := restaurant_donations.SetupRoutes(restaurantDonationsService, restaurantDonationsHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/restaurant/donations/", http.StripPrefix("/api/v1/restaurant/donations", restaurantDonationsRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/restaurant/donations", restaurantDonationsRoutes)
 	mux.Handle("/api/v1/restaurant/impact", http.StripPrefix("/api/v1/restaurant", restaurantDonationsRoutes))
 
 	// Restaurant Staff Management routes (protected)
@@ -166,37 +194,37 @@ func SetupRoutes(cfg *config.Config) http.Handler {
 	restaurantPreferencesService := restaurant_preferences.NewService()
 	restaurantPreferencesHandler := restaurant_preferences.NewHandler(restaurantPreferencesService)
 	restaurantPreferencesRoutes := restaurant_preferences.SetupRoutes(restaurantPreferencesService, restaurantPreferencesHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/restaurant/preferences/", http.StripPrefix("/api/v1/restaurant/preferences", restaurantPreferencesRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/restaurant/preferences", restaurantPreferencesRoutes)
 
 	// NGO Capacity Settings routes (protected)
 	ngoCapacityService := ngo_capacity.NewService()
 	ngoCapacityHandler := ngo_capacity.NewHandler(ngoCapacityService)
 	ngoCapacityRoutes := ngo_capacity.SetupRoutes(ngoCapacityService, ngoCapacityHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/ngo/capacity/", http.StripPrefix("/api/v1/ngo/capacity", ngoCapacityRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/ngo/capacity", ngoCapacityRoutes)
 
 	// NGO Donation Offers routes (protected)
 	ngoOffersService := ngo_offers.NewService()
 	ngoOffersHandler := ngo_offers.NewHandler(ngoOffersService)
 	ngoOffersRoutes := ngo_offers.SetupRoutes(ngoOffersService, ngoOffersHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/ngo/offers/", http.StripPrefix("/api/v1/ngo/offers", ngoOffersRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/ngo/offers", ngoOffersRoutes)
 
 	// NGO Pickup Schedules routes (protected)
 	ngoPickupsService := ngo_pickups.NewService()
 	ngoPickupsHandler := ngo_pickups.NewHandler(ngoPickupsService)
 	ngoPickupsRoutes := ngo_pickups.SetupRoutes(ngoPickupsService, ngoPickupsHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/ngo/pickups/", http.StripPrefix("/api/v1/ngo/pickups", ngoPickupsRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/ngo/pickups", ngoPickupsRoutes)
 
 	// NGO Donation History routes (protected)
 	ngoHistoryService := ngo_history.NewService()
 	ngoHistoryHandler := ngo_history.NewHandler(ngoHistoryService)
 	ngoHistoryRoutes := ngo_history.SetupRoutes(ngoHistoryService, ngoHistoryHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/ngo/history/", http.StripPrefix("/api/v1/ngo/history", ngoHistoryRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/ngo/history", ngoHistoryRoutes)
 
 	// NGO Partner Management routes (protected)
 	ngoPartnersService := ngo_partners.NewService()
 	ngoPartnersHandler := ngo_partners.NewHandler(ngoPartnersService)
 	ngoPartnersRoutes := ngo_partners.SetupRoutes(ngoPartnersService, ngoPartnersHandler, auth.AuthMiddleware(authService))
-	mux.Handle("/api/v1/ngo/partners/", http.StripPrefix("/api/v1/ngo/partners", ngoPartnersRoutes))
+	mountWithOptionalSlash(mux, "/api/v1/ngo/partners", ngoPartnersRoutes)
 
 	// NGO Feedback & Impact routes (protected)
 	ngoFeedbackService := ngo_feedback.NewService()
